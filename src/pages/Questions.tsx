@@ -54,6 +54,29 @@ const Questions: React.FC = () => {
   const [search, setSearch] = useState('')
   const [filterTags, setFilterTags] = useState<string[]>(allFilterTags)
   const [showQuestions, setShowQuestions] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<'especialidade' | 'instituicao'>('especialidade')
+  const institutions = [
+    'Hospital das Clínicas (USP)',
+    'Hospital Sírio-Libanês',
+    'Hospital Albert Einstein',
+    'Hospital Samaritano',
+    'Hospital do Coração (HCor)',
+    'Hospital Moinhos de Vento',
+    'Hospital de Clínicas de Porto Alegre',
+    'Hospital Universitário Pedro Ernesto (UERJ)',
+    'Hospital das Clínicas (UFMG)',
+    'Hospital das Clínicas (UNICAMP)',
+    'Hospital Universitário (UFSC)',
+    'Hospital Universitário (UFPR)',
+    'Hospital Universitário (UFBA)',
+    'Hospital Universitário (UFRJ)',
+    'Hospital Universitário (UNIFESP)',
+    'Hospital Universitário (UFPE)',
+    'Hospital Universitário (UFG)',
+    'Hospital Universitário (UFAM)',
+    'Hospital Universitário (UFPB)',
+    'Hospital Universitário (UFES)'
+  ]
   const navigate = useNavigate()
 
   const filteredSpecialties = specialtiesList.filter((item) =>
@@ -110,62 +133,73 @@ const Questions: React.FC = () => {
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex flex-wrap gap-4 items-center sticky top-0 z-10">
         <h1 className="text-lg md:text-xl font-semibold text-gray-900 mr-6">Filtre questões de acordo com seu objetivo</h1>
         <span className="text-gray-400 hidden md:inline">|</span>
-        <div className="flex flex-wrap gap-2 text-sm font-medium text-gray-600">
-          <span className="border-b-2 border-success-500 text-success-600 pb-1 cursor-pointer">Especialidade / Assunto</span>
-          <span className="hover:text-success-600 cursor-pointer">Instituição</span>
+        <div className="flex flex-wrap gap-4 text-sm font-medium text-gray-600">
+          <span
+            className={`pb-1 cursor-pointer ${activeFilter === 'especialidade' ? 'border-b-2 border-success-500 text-success-600' : ''}`}
+            onClick={() => setActiveFilter('especialidade')}
+          >
+            Especialidade / Assunto
+          </span>
+          <span
+            className={`pb-1 cursor-pointer ${activeFilter === 'instituicao' ? 'border-b-2 border-success-500 text-success-600' : ''}`}
+            onClick={() => setActiveFilter('instituicao')}
+          >
+            Instituição
+          </span>
           <span className="hover:text-success-600 cursor-pointer">Ano</span>
           <span className="hover:text-success-600 cursor-pointer">Região</span>
           <span className="hover:text-success-600 cursor-pointer">Finalidade</span>
           <span className="hover:text-success-600 cursor-pointer">Professor</span>
           <span className="hover:text-success-600 cursor-pointer">Banca</span>
-          <span className="ml-2 text-xs text-gray-400 cursor-pointer">Filtros avançados</span>
         </div>
       </div>
       {/* Grid principal */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 bg-gray-50">
-        {/* Coluna esquerda: especialidades */}
-        <div className="bg-white border-r border-gray-100 flex flex-col h-full min-h-[60vh]">
-          <div className="flex items-center justify-between px-6 pt-6 pb-2">
-            <span className="text-sm text-gray-500 font-medium">
-              {filteredSpecialties.length} especialidades encontradas
-            </span>
-          </div>
-          <div className="px-6 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Busque por um item"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="input-field pl-10"
-              />
+        {/* Coluna esquerda dinâmica: especialidades ou instituições */}
+        {activeFilter === 'especialidade' ? (
+          <div className="bg-white border-r border-gray-100 flex flex-col h-full min-h-[60vh]">
+            <div className="flex items-center justify-between px-6 pt-6 pb-2">
+              <span className="text-sm text-gray-500 font-medium">
+                {filteredSpecialties.length} especialidades encontradas
+              </span>
             </div>
-          </div>
-          <div className="flex-1 overflow-y-auto px-2 pb-4">
-            <ul className="divide-y divide-gray-50">
-              {filteredSpecialties.map((item) => (
-                <li key={item.name}>
-                  <div className="flex items-center px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer" onClick={() => handleExpand(item.name)}>
-                    <span className="mr-2">
-                      {expanded === item.name ? (
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-400" />
-                      )}
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={selectedSpecialties.includes(item.name)}
-                      onChange={e => { e.stopPropagation(); handleSelectSpecialty(item.name) }}
-                      className="accent-success-500 mr-3"
-                      onClick={e => e.stopPropagation()}
-                    />
-                    <span className="text-gray-800 text-sm flex-1">{item.name}</span>
-                    {selectedSpecialties.includes(item.name) && <Check className="h-4 w-4 text-success-500" />}
-                  </div>
-                  {expanded === item.name && (
-                    <ul className="ml-8 mt-1 mb-2">
+            <div className="px-6 pb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Busque por um item"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="input-field pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 pb-4">
+              <ul className="divide-y divide-gray-50">
+                {filteredSpecialties.map((item) => (
+                  <li key={item.name}>
+                    <div className="flex items-center px-4 py-2 hover:bg-gray-50 rounded-lg cursor-pointer" onClick={() => handleExpand(item.name)}>
+                      <span className="mr-2">
+                        {expanded === item.name ? (
+                          <ChevronDown className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                        )}
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={selectedSpecialties.includes(item.name)}
+                        onChange={e => { e.stopPropagation(); handleSelectSpecialty(item.name) }}
+                        className="accent-success-500 mr-3"
+                        onClick={e => e.stopPropagation()}
+                      />
+                      <span className="text-gray-800 text-sm flex-1">{item.name}</span>
+                      {selectedSpecialties.includes(item.name) && <Check className="h-4 w-4 text-success-500" />}
+                    </div>
+                    <ul
+                      className={`ml-12 mt-1 mb-2 transition-all duration-200 overflow-hidden ${expanded === item.name ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}
+                    >
                       {item.subtopics.map((sub) => (
                         <li key={sub} className="flex items-center py-1">
                           <input
@@ -179,20 +213,58 @@ const Questions: React.FC = () => {
                         </li>
                       ))}
                     </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100">
+              <button
+                onClick={handleClear}
+                className="text-sm text-success-600 font-medium hover:underline"
+              >
+                Redefinir filtros
+              </button>
+            </div>
           </div>
-          <div className="px-6 py-4 border-t border-gray-100">
-            <button
-              onClick={handleClear}
-              className="text-sm text-success-600 font-medium hover:underline"
-            >
-              Redefinir filtros
-            </button>
+        ) : (
+          <div className="bg-white border-r border-gray-100 flex flex-col h-full min-h-[60vh]">
+            <div className="flex items-center justify-between px-6 pt-6 pb-2">
+              <span className="text-sm text-gray-500 font-medium">
+                {institutions.length} instituições encontradas
+              </span>
+            </div>
+            <div className="px-6 pb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Busque por uma instituição"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="input-field pl-10"
+                />
+              </div>
+            </div>
+            <div className="px-2 pb-4">
+              <ul className="divide-y divide-gray-50 max-h-72 overflow-y-auto rounded-md border border-gray-100 bg-white">
+                {institutions.filter(inst => inst.toLowerCase().includes(search.toLowerCase())).map((inst) => (
+                  <li key={inst} className="flex items-center px-4 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer">
+                    <input type="checkbox" className="accent-success-500 mr-3" />
+                    <span className="text-gray-800 text-sm flex-1">{inst}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100">
+              <button
+                onClick={() => setSearch('')}
+                className="text-sm text-success-600 font-medium hover:underline"
+              >
+                Redefinir filtros
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Coluna direita: resumo dos filtros */}
         <div className="flex flex-col h-full min-h-[60vh] bg-gray-50">

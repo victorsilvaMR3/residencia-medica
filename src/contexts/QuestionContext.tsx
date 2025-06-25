@@ -207,10 +207,22 @@ const mockQuestions: Question[] = [
   }
 ]
 
+// Dados fictícios de respostas do usuário para testes no dashboard
+const mockUserAnswers: UserAnswer[] = [
+  { questionId: '1', selectedAnswer: '1b', isCorrect: true, timeSpent: 45, answeredAt: new Date(), markedForReview: false },
+  { questionId: '2', selectedAnswer: '2a', isCorrect: false, timeSpent: 30, answeredAt: new Date(), markedForReview: false },
+  { questionId: '3', selectedAnswer: '3b', isCorrect: true, timeSpent: 60, answeredAt: new Date(), markedForReview: false },
+  { questionId: '4', selectedAnswer: '4c', isCorrect: true, timeSpent: 50, answeredAt: new Date(), markedForReview: false },
+  { questionId: '5', selectedAnswer: '5d', isCorrect: true, timeSpent: 70, answeredAt: new Date(), markedForReview: false },
+  { questionId: '6', selectedAnswer: '6a', isCorrect: false, timeSpent: 40, answeredAt: new Date(), markedForReview: true },
+  { questionId: '7', selectedAnswer: '7b', isCorrect: true, timeSpent: 35, answeredAt: new Date(), markedForReview: false },
+  { questionId: '8', selectedAnswer: '8b', isCorrect: true, timeSpent: 55, answeredAt: new Date(), markedForReview: false },
+]
+
 export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) => {
   const [questions] = useState<Question[]>(mockQuestions)
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
-  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([])
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>(mockUserAnswers)
   const [filters, setFilters] = useState<QuestionFilters>({})
 
   const answerQuestion = (questionId: string, selectedAnswer: string, timeSpent: number) => {
