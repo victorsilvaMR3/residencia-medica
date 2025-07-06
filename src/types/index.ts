@@ -7,6 +7,7 @@ export interface User {
   createdAt: Date;
   subscription: 'free' | 'pro';
   studyTime?: number; // tempo disponível em horas por semana
+  role: 'user' | 'admin' | 'moderator'; // controle de acesso
 }
 
 // Tipos de questão
@@ -22,6 +23,7 @@ export interface Question {
   alternatives: Alternative[];
   correctAnswer: string; // ID da alternativa correta
   explanation: string; // comentário didático
+  comment?: string; // comentário adicional/pessoal
   difficulty: 'easy' | 'medium' | 'hard';
   tags: string[]; // tags para busca
   createdAt: Date;
@@ -94,9 +96,16 @@ export interface QuestionFilters {
   subtopic?: string;
   board?: string;
   year?: number;
+  years?: number[]; // Suporte a múltiplos anos
   difficulty?: 'easy' | 'medium' | 'hard';
   answered?: boolean;
   markedForReview?: boolean;
+  // Filtros avançados
+  institutions?: string[];
+  regions?: string[];
+  purposes?: string[];
+  specialties?: string[];
+  subtopics?: string[];
 }
 
 // Tipos de estatísticas
@@ -126,4 +135,18 @@ export interface Notification {
   message: string;
   read: boolean;
   createdAt: Date;
+}
+
+// Tipo para Revisão (Repetição Espaçada)
+export interface Revisao {
+  tema: string;
+  microtema: string;
+  data_estudo: string; // ISO date
+  n_questoes: number;
+  acertos: number;
+  erros: number;
+  percentual: number; // 0.0 - 1.0
+  desempenho: 'Ruim' | 'Bom' | 'Ótimo';
+  n_revisoes: number;
+  proxima_revisao: string; // ISO date
 } 

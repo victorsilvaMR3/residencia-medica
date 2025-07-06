@@ -1,6 +1,5 @@
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
 interface LayoutProps {

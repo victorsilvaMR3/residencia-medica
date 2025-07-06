@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
+  createAdminUser: () => void // Para teste
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -45,17 +46,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, _password: string) => {
     setLoading(true)
     try {
       // Simulação de login
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Verificar se é o email do administrador
+      const isAdmin = email === 'victorsilva43@gmail.com'
+      
       const mockUser: User = {
-        id: '1',
+        id: isAdmin ? 'admin-1' : '1',
         email,
-        name: 'Usuário Teste',
+        name: isAdmin ? 'Victor Silva (Admin)' : 'Usuário Teste',
         createdAt: new Date(),
-        subscription: 'free'
+        subscription: isAdmin ? 'pro' : 'free',
+        role: isAdmin ? 'admin' : 'user'
       }
       setUser(mockUser)
       localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
@@ -66,17 +72,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, _password: string, name: string) => {
     setLoading(true)
     try {
       // Simulação de registro
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Verificar se é o email do administrador
+      const isAdmin = email === 'victorsilva43@gmail.com'
+      
       const mockUser: User = {
-        id: '1',
+        id: isAdmin ? 'admin-1' : '1',
         email,
-        name,
+        name: isAdmin ? 'Victor Silva (Admin)' : name,
         createdAt: new Date(),
-        subscription: 'free'
+        subscription: isAdmin ? 'pro' : 'free',
+        role: isAdmin ? 'admin' : 'user'
       }
       setUser(mockUser)
       localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
@@ -100,12 +111,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
+  const createAdminUser = () => {
+    const adminUser: User = {
+      id: 'admin-1',
+      email: 'admin@provaexpress.com',
+      name: 'Administrador',
+      createdAt: new Date(),
+      subscription: 'pro',
+      role: 'admin'
+    }
+    setUser(adminUser)
+    localStorage.setItem(USER_KEY, JSON.stringify(adminUser))
+  }
+
   const value = {
     user,
     loading,
     login,
     register,
-    logout
+    logout,
+    createAdminUser
   }
 
   return (

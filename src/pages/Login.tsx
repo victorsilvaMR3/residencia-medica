@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { login, loading } = useAuth()
+  const { login, loading, createAdminUser } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,6 +21,11 @@ const Login: React.FC = () => {
     } catch (err) {
       setError('Email ou senha incorretos')
     }
+  }
+
+  const handleCreateAdmin = () => {
+    createAdminUser()
+    navigate('/admin')
   }
 
   return (
@@ -39,6 +44,11 @@ const Login: React.FC = () => {
               crie uma nova conta
             </Link>
           </p>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-700 text-center">
+              <strong>Dica:</strong> Use <code className="bg-blue-100 px-1 rounded">victorsilva43@gmail.com</code> para acessar como administrador
+            </p>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -129,6 +139,21 @@ const Login: React.FC = () => {
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
+          </div>
+
+          {/* Botão temporário para criar usuário admin (apenas para desenvolvimento) */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handleCreateAdmin}
+              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              <Shield className="h-4 w-4" />
+              Entrar como Administrador (Teste)
+            </button>
+            <p className="mt-2 text-xs text-gray-500 text-center">
+              Este botão é apenas para desenvolvimento e testes
+            </p>
           </div>
         </form>
       </div>

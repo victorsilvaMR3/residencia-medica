@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { User as UserIcon, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth()
@@ -9,10 +9,19 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b border-gray-100 shadow-sm h-16 flex items-center px-4 md:px-8 justify-between z-10">
-      {/* Logo e nome */}
-      <div className="flex items-center gap-2">
-        <span className="text-success-600 text-2xl font-bold">PE</span>
-        <span className="hidden md:block text-lg font-semibold text-gray-900 tracking-tight">Prova Residência Express</span>
+      <div className="flex items-center gap-8">
+        {/* Logo e nome */}
+        <div className="flex items-center gap-2">
+          <span className="text-success-600 text-2xl font-bold">PE</span>
+          <span className="hidden md:block text-lg font-semibold text-gray-900 tracking-tight">Prova Residência Express</span>
+        </div>
+        {/* Menu de navegação */}
+        {user && (
+          <div className="hidden md:flex items-center gap-6 ml-8">
+            <Link to="/questions/list" className="text-gray-700 hover:text-success-600 font-medium">Questões</Link>
+            <Link to="/revisoes" className="text-gray-700 hover:text-success-600 font-medium">Revisões</Link>
+          </div>
+        )}
       </div>
       {/* Usuário ou login/cadastro */}
       <div className="flex items-center gap-4">

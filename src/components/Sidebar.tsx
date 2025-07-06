@@ -10,6 +10,7 @@ import {
   Heart,
   Brain,
   Activity,
+  Repeat,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -18,12 +19,18 @@ const Sidebar: React.FC = () => {
   const { user, logout } = useAuth()
   const [expanded, setExpanded] = useState(false)
 
-  const menuItems = [
+  const baseMenuItems = [
     { path: '/', icon: Home, label: 'Início' },
     { path: '/questions', icon: BookOpen, label: 'Questões' },
+    { path: '/revisoes', icon: Repeat, label: 'Revisões' },
     { path: '/dashboard', icon: BarChart3, label: 'Dashboard' },
     { path: '/profile', icon: UserIcon, label: 'Perfil' },
   ]
+
+  // Adicionar Admin apenas para administradores
+  const menuItems = user?.role === 'admin' 
+    ? [...baseMenuItems, { path: '/admin', icon: Settings, label: 'Admin' }]
+    : baseMenuItems
 
   const specialties = [
     { name: 'Cardiologia', icon: Heart, color: 'text-red-400' },
@@ -33,8 +40,8 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`h-screen bg-white border-r border-gray-100 flex flex-col justify-between shadow-sm transition-all duration-200
-        ${expanded ? 'w-64' : 'w-20'}
+      className={`h-screen bg-white border-r border-gray-100 flex flex-col justify-between transition-all duration-200
+        ${expanded ? 'w-64 shadow-md' : 'w-20 shadow-sm'}
       `}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}

@@ -11,6 +11,8 @@ interface QuestionContextType {
   markForReview: (questionId: string) => void
   getNextQuestion: () => Question | null
   getFilteredQuestions: () => Question[]
+  addQuestion: (question: Question) => void
+  addQuestions: (questions: Question[]) => void
 }
 
 const QuestionContext = createContext<QuestionContextType | undefined>(undefined)
@@ -220,10 +222,18 @@ const mockUserAnswers: UserAnswer[] = [
 ]
 
 export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) => {
-  const [questions] = useState<Question[]>(mockQuestions)
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
+  const [questions, setQuestions] = useState<Question[]>(mockQuestions)
+  const [currentQuestion] = useState<Question | null>(null)
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>(mockUserAnswers)
   const [filters, setFilters] = useState<QuestionFilters>({})
+
+  const addQuestion = (question: Question) => {
+    setQuestions(prev => [...prev, question])
+  }
+
+  const addQuestions = (newQuestions: Question[]) => {
+    setQuestions(prev => [...prev, ...newQuestions])
+  }
 
   const answerQuestion = (questionId: string, selectedAnswer: string, timeSpent: number) => {
     const question = questions.find(q => q.id === questionId)
@@ -260,13 +270,25 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) 
   }
 
   const getFilteredQuestions = (): Question[] => {
+    // Se nenhum filtro estiver aplicado, retorna array vazio
+    const hasAnyFilter = Object.values(filters).some(filter => 
+      filter !== undefined && (Array.isArray(filter) ? filter.length > 0 : true)
+    )
+    
+    if (!hasAnyFilter) {
+      return []
+    }
+    
     return questions.filter(question => {
+      // Filtros básicos
       if (filters.specialty && question.specialty !== filters.specialty) return false
       if (filters.topic && question.topic !== filters.topic) return false
       if (filters.subtopic && question.subtopic !== filters.subtopic) return false
       if (filters.board && question.board !== filters.board) return false
       if (filters.year && question.year !== filters.year) return false
       if (filters.difficulty && question.difficulty !== filters.difficulty) return false
+      
+      // Filtros de resposta do usuário
       if (filters.answered !== undefined) {
         const isAnswered = userAnswers.some(a => a.questionId === question.id)
         if (filters.answered !== isAnswered) return false
@@ -275,6 +297,124 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) 
         const isMarked = userAnswers.find(a => a.questionId === question.id)?.markedForReview
         if (filters.markedForReview !== isMarked) return false
       }
+      
+      // Filtros avançados - múltiplas seleções
+      if (filters.specialties && filters.specialties.length > 0) {
+        if (!filters.specialties.includes(question.specialty)) return false
+      }
+      
+      if (filters.subtopics && filters.subtopics.length > 0) {
+        if (!filters.subtopics.includes(question.subtopic)) return false
+      }
+      
+      // Filtros por instituição (board)
+      if (filters.institutions && filters.institutions.length > 0) {
+        if (!filters.institutions.includes(question.board)) return false
+      }
+      
+      // Filtros por ano (suporte a múltiplos anos)
+      if (filters.years && Array.isArray(filters.years)) {
+        if (!filters.years.includes(question.year)) return false
+      } else if (filters.year && question.year !== filters.year) {
+        return false
+      }
+      
+      // Filtros por região (baseado no board - seria expandido com dados reais)
+      if (filters.regions && filters.regions.length > 0) {
+        // Mapeamento básico de regiões por banca (exemplo)
+        const regionMapping: { [key: string]: string[] } = {
+          'USP': ['SP'],
+          'UNIFESP': ['SP'],
+          'UNICAMP': ['SP'],
+          'UNESP': ['SP'],
+          'UFMG': ['MG'],
+          'UFRJ': ['RJ'],
+          'UFPR': ['PR'],
+          'UFSC': ['SC'],
+          'UFBA': ['BA'],
+          'UFPE': ['PE'],
+          'UFPB': ['PB'],
+          'UFG': ['GO'],
+          'UFAM': ['AM'],
+          'UFES': ['ES'],
+          'FIOCRUZ': ['RJ'],
+          'Hospital das Clínicas (USP)': ['SP'],
+          'Hospital Sírio-Libanês': ['SP'],
+          'Hospital Albert Einstein': ['SP'],
+          'Hospital Samaritano': ['SP'],
+          'Hospital do Coração (HCor)': ['SP'],
+          'Hospital Moinhos de Vento': ['RS'],
+          'Hospital de Clínicas de Porto Alegre': ['RS'],
+          'Hospital Universitário Pedro Ernesto (UERJ)': ['RJ'],
+          'Hospital das Clínicas (UFMG)': ['MG'],
+          'Hospital das Clínicas (UNICAMP)': ['SP'],
+          'Hospital Universitário (UFSC)': ['SC'],
+          'Hospital Universitário (UFPR)': ['PR'],
+          'Hospital Universitário (UFBA)': ['BA'],
+          'Hospital Universitário (UFRJ)': ['RJ'],
+          'Hospital Universitário (UNIFESP)': ['SP'],
+          'Hospital Universitário (UFPE)': ['PE'],
+          'Hospital Universitário (UFG)': ['GO'],
+          'Hospital Universitário (UFAM)': ['AM'],
+          'Hospital Universitário (UFPB)': ['PB'],
+          'Hospital Universitário (UFES)': ['ES']
+        }
+        
+        const questionRegions = regionMapping[question.board] || ['NAC']
+        const hasMatchingRegion = questionRegions.some(region => 
+          filters.regions!.includes(region)
+        )
+        if (!hasMatchingRegion) return false
+      }
+      
+      // Filtros por finalidade (baseado no board - seria expandido com dados reais)
+      if (filters.purposes && filters.purposes.length > 0) {
+        // Mapeamento básico de finalidades por banca (exemplo)
+        const purposeMapping: { [key: string]: string[] } = {
+          'USP': ['Residência (Acesso Direto)'],
+          'UNIFESP': ['Residência (Acesso Direto)'],
+          'UNICAMP': ['Residência (Acesso Direto)'],
+          'UNESP': ['Residência (Acesso Direto)'],
+          'UFMG': ['Residência (Acesso Direto)'],
+          'UFRJ': ['Residência (Acesso Direto)'],
+          'UFPR': ['Residência (Acesso Direto)'],
+          'UFSC': ['Residência (Acesso Direto)'],
+          'UFBA': ['Residência (Acesso Direto)'],
+          'UFPE': ['Residência (Acesso Direto)'],
+          'UFPB': ['Residência (Acesso Direto)'],
+          'UFG': ['Residência (Acesso Direto)'],
+          'UFAM': ['Residência (Acesso Direto)'],
+          'UFES': ['Residência (Acesso Direto)'],
+          'FIOCRUZ': ['Residência (Acesso Direto)'],
+          'Hospital das Clínicas (USP)': ['Residência (Acesso Direto)'],
+          'Hospital Sírio-Libanês': ['Residência (Acesso Direto)'],
+          'Hospital Albert Einstein': ['Residência (Acesso Direto)'],
+          'Hospital Samaritano': ['Residência (Acesso Direto)'],
+          'Hospital do Coração (HCor)': ['Residência (Acesso Direto)'],
+          'Hospital Moinhos de Vento': ['Residência (Acesso Direto)'],
+          'Hospital de Clínicas de Porto Alegre': ['Residência (Acesso Direto)'],
+          'Hospital Universitário Pedro Ernesto (UERJ)': ['Residência (Acesso Direto)'],
+          'Hospital das Clínicas (UFMG)': ['Residência (Acesso Direto)'],
+          'Hospital das Clínicas (UNICAMP)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFSC)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFPR)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFBA)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFRJ)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UNIFESP)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFPE)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFG)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFAM)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFPB)': ['Residência (Acesso Direto)'],
+          'Hospital Universitário (UFES)': ['Residência (Acesso Direto)']
+        }
+        
+        const questionPurposes = purposeMapping[question.board] || ['Residência (Acesso Direto)']
+        const hasMatchingPurpose = questionPurposes.some(purpose => 
+          filters.purposes!.includes(purpose)
+        )
+        if (!hasMatchingPurpose) return false
+      }
+      
       return true
     })
   }
@@ -288,7 +428,9 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) 
     answerQuestion,
     markForReview,
     getNextQuestion,
-    getFilteredQuestions
+    getFilteredQuestions,
+    addQuestion,
+    addQuestions
   }
 
   return (
