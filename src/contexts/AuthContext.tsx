@@ -28,9 +28,7 @@ interface AuthProviderProps {
 const USER_KEY = 'provaexpress_user'
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Garantir tipagem correta do Vite
-// eslint-disable-next-line
-declare var import.meta: ImportMeta;
+// Remover linha de declaração de import.meta (não necessária)
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
