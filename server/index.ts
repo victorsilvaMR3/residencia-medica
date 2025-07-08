@@ -95,6 +95,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     const user = await DatabaseService.createUser({
       email,
       name,
+      password: hashedPassword,
       role,
       subscription: 'free'
     })
@@ -135,11 +136,11 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Credenciais inválidas' })
     }
 
-    // Verificar senha (simulado por enquanto)
-    // const validPassword = await bcrypt.compare(password, user.password)
-    // if (!validPassword) {
-    //   return res.status(401).json({ error: 'Credenciais inválidas' })
-    // }
+    // Validar senha
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Credenciais inválidas' })
+    }
 
     // Gerar token
     const token = jwt.sign(
