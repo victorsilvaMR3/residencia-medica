@@ -322,8 +322,8 @@ app.get('/api/search', async (req: Request, res: Response) => {
 
 // Rota de saúde
 app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   })
@@ -335,5 +335,7 @@ app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`)
   console.log(`🔗 API docs: http://localhost:${PORT}/api`)
 })
+
+console.log('Iniciando backend Express...');
 
 export default app
