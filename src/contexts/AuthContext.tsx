@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '../types'
 
