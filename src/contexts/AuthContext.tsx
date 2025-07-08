@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '../types'
 
+// Remover redefinição de interface ImportMeta (já existe globalmente)
+
 interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
-  createAdminUser: () => void // Para teste
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,6 +26,11 @@ interface AuthProviderProps {
 }
 
 const USER_KEY = 'provaexpress_user'
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Garantir tipagem correta do Vite
+// eslint-disable-next-line
+declare var import.meta: ImportMeta;
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -36,7 +42,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        // Converter datas de string para Date
         parsed.createdAt = new Date(parsed.createdAt)
         setUser(parsed)
       } catch {
@@ -46,53 +51,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = async (email: string, _password: string) => {
+  const login = async (email: string, password: string) => {
     setLoading(true)
     try {
-      // Simulação de login
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Verificar se é o email do administrador
-      const isAdmin = email === 'victorsilva43@gmail.com'
-      
-      const mockUser: User = {
-        id: isAdmin ? 'admin-1' : '1',
-        email,
-        name: isAdmin ? 'Victor Silva (Admin)' : 'Usuário Teste',
-        createdAt: new Date(),
-        subscription: isAdmin ? 'pro' : 'free',
-        role: isAdmin ? 'admin' : 'user'
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro no login')
       }
-      setUser(mockUser)
-      localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
-    } catch (error) {
-      throw new Error('Erro no login')
+      const data = await response.json()
+      setUser(data.user)
+      localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+      localStorage.setItem('token', data.token)
+    } catch (error: any) {
+      throw new Error(error.message || 'Erro no login')
     } finally {
       setLoading(false)
     }
   }
 
-  const register = async (email: string, _password: string, name: string) => {
+  const register = async (email: string, password: string, name: string) => {
     setLoading(true)
     try {
-      // Simulação de registro
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Verificar se é o email do administrador
-      const isAdmin = email === 'victorsilva43@gmail.com'
-      
-      const mockUser: User = {
-        id: isAdmin ? 'admin-1' : '1',
-        email,
-        name: isAdmin ? 'Victor Silva (Admin)' : name,
-        createdAt: new Date(),
-        subscription: isAdmin ? 'pro' : 'free',
-        role: isAdmin ? 'admin' : 'user'
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro no cadastro')
       }
-      setUser(mockUser)
-      localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
-    } catch (error) {
-      throw new Error('Erro no registro')
+      const data = await response.json()
+      setUser(data.user)
+      localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+      localStorage.setItem('token', data.token)
+    } catch (error: any) {
+      throw new Error(error.message || 'Erro no cadastro')
     } finally {
       setLoading(false)
     }
@@ -104,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 500))
       setUser(null)
       localStorage.removeItem(USER_KEY)
+      localStorage.removeItem('token')
     } catch (error) {
       throw new Error('Erro no logout')
     } finally {
@@ -111,26 +111,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const createAdminUser = () => {
-    const adminUser: User = {
-      id: 'admin-1',
-      email: 'admin@provaexpress.com',
-      name: 'Administrador',
-      createdAt: new Date(),
-      subscription: 'pro',
-      role: 'admin'
-    }
-    setUser(adminUser)
-    localStorage.setItem(USER_KEY, JSON.stringify(adminUser))
-  }
+  // Remover createAdminUser e simulações
 
   const value = {
     user,
     loading,
     login,
     register,
-    logout,
-    createAdminUser
+    logout
   }
 
   return (
