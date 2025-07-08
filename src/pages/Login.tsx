@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const { login, loading, createAdminUser } = useAuth()
+  const { login, loading } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,11 +21,6 @@ const Login: React.FC = () => {
     } catch (err) {
       setError('Email ou senha incorretos')
     }
-  }
-
-  const handleCreateAdmin = () => {
-    createAdminUser()
-    navigate('/admin')
   }
 
   return (
@@ -139,21 +134,6 @@ const Login: React.FC = () => {
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
-          </div>
-
-          {/* Botão temporário para criar usuário admin (apenas para desenvolvimento) */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={handleCreateAdmin}
-              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              <Shield className="h-4 w-4" />
-              Entrar como Administrador (Teste)
-            </button>
-            <p className="mt-2 text-xs text-gray-500 text-center">
-              Este botão é apenas para desenvolvimento e testes
-            </p>
           </div>
         </form>
       </div>
