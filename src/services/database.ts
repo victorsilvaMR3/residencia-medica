@@ -49,6 +49,7 @@ export interface DatabaseUser {
   id: string
   email: string
   name: string
+  password: string // novo campo
   role: 'user' | 'admin' | 'moderator'
   subscription: 'free' | 'pro'
   created_at: Date
@@ -165,12 +166,13 @@ export class DatabaseService {
   }
 
   static async createUser(user: Omit<DatabaseUser, 'id' | 'created_at'>): Promise<DatabaseUser> {
+    console.log('createUser payload:', user);
     const query = `
-      INSERT INTO users (email, name, role, subscription)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO users (email, name, password, role, subscription)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `
-    const values = [user.email, user.name, user.role, user.subscription]
+    const values = [user.email, user.name, user.password, user.role, user.subscription]
     const result = await getPool().query(query, values)
     return result.rows[0]
   }
@@ -280,6 +282,7 @@ export const migrationScripts = {
       id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
       email VARCHAR(255) UNIQUE NOT NULL,
       name VARCHAR(255) NOT NULL,
+      password VARCHAR(255) NOT NULL,
       role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'admin', 'moderator')),
       subscription VARCHAR(50) DEFAULT 'free' CHECK (subscription IN ('free', 'pro')),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -327,9 +330,15 @@ export const migrationScripts = {
 
   insertSampleData: `
     -- Inserir usuário admin
-    INSERT INTO users (email, name, role, subscription) 
-    VALUES ('victorsilva43@gmail.com', 'Victor Silva (Admin)', 'admin', 'pro')
-    ON CONFLICT (email) DO NOTHING;
+  INSERT INTO users (email, name, password, role, subscription) 
+VALUES (
+  'victorsilva43@gmail.com', 
+  'Victor Silva (Admin)', 
+  '$2a$10$QWERTYUIOPASDFGHJKLZXCVBNM1234567890abcd', -- hash fake
+  'admin', 
+  'pro'
+)
+ON CONFLICT (email) DO NOTHING;
 
     -- Inserir questões de exemplo
     INSERT INTO questions (specialty, topic, subtopic, board, year, statement, alternatives, correct_answer, explanation, difficulty, tags) VALUES
