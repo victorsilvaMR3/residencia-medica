@@ -32,7 +32,6 @@ interface AuthenticatedRequest extends Request {
 }
 
 // Middleware
-app.use(helmet())
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:3000'
@@ -48,6 +47,8 @@ app.use(cors({
   },
   credentials: true
 }))
+
+app.use(helmet())
 app.use(express.json())
 
 // Middleware de autenticação
