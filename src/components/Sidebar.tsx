@@ -11,6 +11,7 @@ import {
   Brain,
   Activity,
   Repeat,
+  GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -52,12 +53,12 @@ const Sidebar: React.FC = () => {
           {/* Logo + título */}
           {expanded ? (
             <>
-              <img src="/logo.png" alt="Logo" className="h-12 w-12 object-contain mr-2" />
+              <GraduationCap className="h-12 w-12 text-success-600 mr-2" />
               <span className="text-xl font-bold text-success-600 tracking-tight">ProvaExpress</span>
             </>
           ) : (
             <span className="flex items-center justify-center w-20 h-20">
-              <img src="/logo.png" alt="Logo" className="h-12 w-12 object-contain" />
+              <GraduationCap className="h-12 w-12 text-success-600" />
             </span>
           )}
         </div>
