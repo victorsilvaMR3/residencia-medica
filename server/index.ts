@@ -96,6 +96,9 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    // Log para depuração
+    console.log('Cadastro:', { email, name, password, hashedPassword, role });
+
     // Criar usuário
     const role = email === 'victorsilva43@gmail.com' ? 'admin' : 'user'
     const user = await DatabaseService.createUser({
