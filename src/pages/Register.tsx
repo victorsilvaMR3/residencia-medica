@@ -27,30 +27,43 @@ const Register: React.FC = () => {
     if (currentPassword !== currentConfirmPassword) {
       setError('As senhas não coincidem');
       setErrorType('general');
+      console.log('Senha não coincide, error setado');
       return;
     }
 
     if (currentPassword.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres');
       setErrorType('general');
+      console.log('Senha curta, error setado');
       return;
     }
 
-    setError('');
-    setErrorType('general');
+    // Não limpar o erro aqui!
+    // setError('');
+    // setErrorType('general');
 
     try {
       const result = await register(email, currentPassword, name);
       if (result.success) {
+        // Limpar campos e erro só em caso de sucesso
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setError('');
+        setErrorType('general');
         // navigate('/dashboard'); // Remover temporariamente para depuração
+        console.log('Cadastro com sucesso, limpando campos e erro');
       } else {
         console.log('Entrou no else do erro do backend', result);
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
+        console.log('Erro setado:', result.error, result.errorType);
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
+      console.log('Erro inesperado, error setado');
     }
   }, [email, name, register]);
 
