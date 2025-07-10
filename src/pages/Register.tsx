@@ -19,19 +19,27 @@ const Register: React.FC = () => {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Register - handleSubmit called, current state:', { error, errorType })
-    setError('')
-    setErrorType('general')
-    console.log('Register - State cleared')
+    // Remover o clear de erro daqui
+    // setError('')
+    // setErrorType('general')
+    // console.log('Register - State cleared')
 
     if (password !== confirmPassword) {
       setError('As senhas não coincidem')
+      setErrorType('general')
       return
     }
 
     if (password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres')
+      setErrorType('general')
       return
     }
+
+    // Limpar erro só antes de tentar registrar
+    setError('')
+    setErrorType('general')
+    console.log('Register - State cleared (após validações)')
 
     try {
       const result = await register(email, password, name)
