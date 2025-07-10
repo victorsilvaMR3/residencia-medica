@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 const Register: React.FC = () => {
   const [name, setName] = useState('')
@@ -11,12 +11,14 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
+  const [errorType, setErrorType] = useState<'email' | 'general'>('general')
   const { register, loading } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setErrorType('general')
 
     if (password !== confirmPassword) {
       setError('As senhas não coincidem')
@@ -29,10 +31,35 @@ const Register: React.FC = () => {
     }
 
     try {
-      await register(email, password, name)
-      navigate('/dashboard')
+      const result = await register(email, password, name)
+      
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error || 'Erro ao criar conta')
+        setErrorType(result.errorType || 'general')
+      }
     } catch (err) {
-      setError('Erro ao criar conta. Tente novamente.')
+      setError('Erro inesperado. Tente novamente.')
+      setErrorType('general')
+    }
+  }
+
+  const getErrorMessage = () => {
+    switch (errorType) {
+      case 'email':
+        return 'Este email já está cadastrado. Tente fazer login ou use outro email.'
+      default:
+        return error || 'Erro ao criar conta. Tente novamente.'
+    }
+  }
+
+  const getErrorIcon = () => {
+    switch (errorType) {
+      case 'email':
+        return <Mail className="h-5 w-5" />
+      default:
+        return <AlertCircle className="h-5 w-5" />
     }
   }
 
@@ -56,8 +83,20 @@ const Register: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg">
-              {error}
+            <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                {getErrorIcon()}
+              </div>
+              <div>
+                <p className="text-sm font-medium">{getErrorMessage()}</p>
+                {errorType === 'email' && (
+                  <p className="text-xs mt-1">
+                    <Link to="/login" className="text-error-600 hover:text-error-500 underline">
+                      Fazer login
+                    </Link>
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -96,7 +135,7 @@ const Register: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-10"
+                  className={`input-field pl-10 ${errorType === 'email' ? 'border-error-300 focus:border-error-500 focus:ring-error-500' : ''}`}
                   placeholder="seu@email.com"
                 />
               </div>

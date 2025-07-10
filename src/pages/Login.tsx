@@ -1,25 +1,56 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [errorType, setErrorType] = useState<'email' | 'password' | 'general'>('general')
   const { login, loading } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setErrorType('general')
 
     try {
-      await login(email, password)
-      navigate('/dashboard')
+      const result = await login(email, password)
+      
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error || 'Erro no login')
+        setErrorType(result.errorType || 'general')
+      }
     } catch (err) {
-      setError('Email ou senha incorretos')
+      setError('Erro inesperado. Tente novamente.')
+      setErrorType('general')
+    }
+  }
+
+  const getErrorMessage = () => {
+    switch (errorType) {
+      case 'email':
+        return 'Email não encontrado. Verifique se digitou corretamente ou crie uma nova conta.'
+      case 'password':
+        return 'Senha incorreta. Verifique sua senha e tente novamente.'
+      default:
+        return error || 'Erro no login. Tente novamente.'
+    }
+  }
+
+  const getErrorIcon = () => {
+    switch (errorType) {
+      case 'email':
+        return <Mail className="h-5 w-5" />
+      case 'password':
+        return <Lock className="h-5 w-5" />
+      default:
+        return <AlertCircle className="h-5 w-5" />
     }
   }
 
@@ -48,8 +79,20 @@ const Login: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg">
-              {error}
+            <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                {getErrorIcon()}
+              </div>
+              <div>
+                <p className="text-sm font-medium">{getErrorMessage()}</p>
+                {errorType === 'email' && (
+                  <p className="text-xs mt-1">
+                    <Link to="/register" className="text-error-600 hover:text-error-500 underline">
+                      Criar nova conta
+                    </Link>
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -68,7 +111,7 @@ const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-10"
+                  className={`input-field pl-10 ${errorType === 'email' ? 'border-error-300 focus:border-error-500 focus:ring-error-500' : ''}`}
                   placeholder="seu@email.com"
                 />
               </div>
@@ -88,7 +131,7 @@ const Login: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-10 pr-10"
+                  className={`input-field pl-10 pr-10 ${errorType === 'password' ? 'border-error-300 focus:border-error-500 focus:ring-error-500' : ''}`}
                   placeholder="Sua senha"
                 />
                 <button

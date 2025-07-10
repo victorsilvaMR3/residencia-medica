@@ -7,8 +7,8 @@ import { User } from '../types'
 interface AuthContextType {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string) => Promise<void>
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; errorType?: 'email' | 'password' | 'general' }>
+  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string; errorType?: 'email' | 'general' }>
   logout: () => Promise<void>
 }
 
@@ -58,16 +58,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
+      
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Erro no login')
+        
+        // Determinar o tipo de erro baseado no status HTTP
+        let errorType: 'email' | 'password' | 'general' = 'general'
+        if (response.status === 401) {
+          // 401 pode ser email inexistente ou senha incorreta
+          // Por segurança, não diferenciamos explicitamente
+          errorType = 'password'
+        } else if (response.status === 400) {
+          errorType = 'email'
+        }
+        
+        throw new Error(JSON.stringify({
+          message: errorData.error || 'Erro no login',
+          type: errorType
+        }))
       }
+      
       const data = await response.json()
       setUser(data.user)
       localStorage.setItem(USER_KEY, JSON.stringify(data.user))
       localStorage.setItem('token', data.token)
+      
+      return { success: true }
     } catch (error: any) {
-      throw new Error(error.message || 'Erro no login')
+      try {
+        const parsedError = JSON.parse(error.message)
+        return { 
+          success: false, 
+          error: parsedError.message, 
+          errorType: parsedError.type 
+        }
+      } catch {
+        return { 
+          success: false, 
+          error: error.message || 'Erro no login',
+          errorType: 'general'
+        }
+      }
     } finally {
       setLoading(false)
     }
@@ -81,16 +112,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       })
+      
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Erro no cadastro')
+        
+        // Determinar o tipo de erro baseado no status HTTP
+        let errorType: 'email' | 'general' = 'general'
+        if (response.status === 400 && errorData.error?.includes('já cadastrado')) {
+          errorType = 'email'
+        }
+        
+        throw new Error(JSON.stringify({
+          message: errorData.error || 'Erro no cadastro',
+          type: errorType
+        }))
       }
+      
       const data = await response.json()
       setUser(data.user)
       localStorage.setItem(USER_KEY, JSON.stringify(data.user))
       localStorage.setItem('token', data.token)
+      
+      return { success: true }
     } catch (error: any) {
-      throw new Error(error.message || 'Erro no cadastro')
+      try {
+        const parsedError = JSON.parse(error.message)
+        return { 
+          success: false, 
+          error: parsedError.message, 
+          errorType: parsedError.type 
+        }
+      } catch {
+        return { 
+          success: false, 
+          error: error.message || 'Erro no cadastro',
+          errorType: 'general'
+        }
+      }
     } finally {
       setLoading(false)
     }
