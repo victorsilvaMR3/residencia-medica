@@ -68,16 +68,25 @@ const Register: React.FC = () => {
 
   const getErrorMessage = () => {
     console.log('getErrorMessage called with errorType:', errorType, 'and error:', error)
-    switch (errorType) {
+    console.log('getErrorMessage - errorRef.current:', errorRef.current)
+    
+    // Usar o valor mais atualizado
+    const currentErrorType = errorRef.current.errorType || errorType
+    const currentError = errorRef.current.error || error
+    
+    switch (currentErrorType) {
       case 'email':
         return 'Este email já está cadastrado. Tente fazer login ou use outro email.'
       default:
-        return error || 'Erro ao criar conta. Tente novamente.'
+        return currentError || 'Erro ao criar conta. Tente novamente.'
     }
   }
 
   const getErrorIcon = () => {
-    switch (errorType) {
+    // Usar o valor mais atualizado
+    const currentErrorType = errorRef.current.errorType || errorType
+    
+    switch (currentErrorType) {
       case 'email':
         return <Mail className="h-5 w-5" />
       default:
