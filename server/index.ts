@@ -1,3 +1,4 @@
+// Dummy comment para forçar novo deploy no Railway
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
