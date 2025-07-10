@@ -1,11 +1,16 @@
 // Forçar novo deploy - debug erro de exibição de mensagem de email já cadastrado
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 const Register: React.FC = () => {
   console.log('Register renderizou');
+  useEffect(() => {
+    return () => {
+      console.log('Register UNMOUNT');
+    };
+  }, []);
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,31 +24,33 @@ const Register: React.FC = () => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
-    const confirmPasswordInput = form.elements.namedItem('confirmPassword') as HTMLInputElement;
-    const currentPassword = passwordInput?.value || '';
-    const currentConfirmPassword = confirmPasswordInput?.value || '';
-
-    if (currentPassword !== currentConfirmPassword) {
-      setError('As senhas não coincidem');
-      setErrorType('general');
-      console.log('Senha não coincide, error setado');
-      return;
-    }
-
-    if (currentPassword.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
-      setErrorType('general');
-      console.log('Senha curta, error setado');
-      return;
-    }
-
-    // Não limpar o erro aqui!
-    // setError('');
-    // setErrorType('general');
-
     try {
+      const form = e.target as HTMLFormElement;
+      const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
+      const confirmPasswordInput = form.elements.namedItem('confirmPassword') as HTMLInputElement;
+      const currentPassword = passwordInput?.value || '';
+      const currentConfirmPassword = confirmPasswordInput?.value || '';
+
+      if (currentPassword !== currentConfirmPassword) {
+        setError('As senhas não coincidem');
+        setErrorType('general');
+        console.log('Senha não coincide, error setado');
+        console.log('error depois do setError:', 'As senhas não coincidem');
+        return;
+      }
+
+      if (currentPassword.length < 6) {
+        setError('A senha deve ter pelo menos 6 caracteres');
+        setErrorType('general');
+        console.log('Senha curta, error setado');
+        console.log('error depois do setError:', 'A senha deve ter pelo menos 6 caracteres');
+        return;
+      }
+
+      // Não limpar o erro aqui!
+      // setError('');
+      // setErrorType('general');
+
       const result = await register(email, currentPassword, name);
       if (result.success) {
         // Limpar campos e erro só em caso de sucesso
@@ -60,11 +67,13 @@ const Register: React.FC = () => {
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
         console.log('Erro setado:', result.error, result.errorType);
+        console.log('error depois do setError:', result.error || 'Erro ao criar conta');
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
       console.log('Erro inesperado, error setado');
+      console.log('error depois do setError:', 'Erro inesperado. Tente novamente.');
     }
   }, [email, name, register]);
 
