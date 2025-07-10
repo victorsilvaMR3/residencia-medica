@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
@@ -14,6 +14,11 @@ const Register: React.FC = () => {
   const [errorType, setErrorType] = useState<'email' | 'general'>('general')
   const { register, loading } = useAuth()
   const navigate = useNavigate()
+
+  // Monitorar mudanças no estado de erro
+  useEffect(() => {
+    console.log('Register - State changed:', { error, errorType })
+  }, [error, errorType])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
