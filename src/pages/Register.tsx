@@ -36,16 +36,19 @@ const Register: React.FC = () => {
       if (result.success) {
         navigate('/dashboard')
       } else {
+        console.log('Register page - Error received:', result)
         setError(result.error || 'Erro ao criar conta')
         setErrorType(result.errorType || 'general')
       }
     } catch (err) {
+      console.log('Register page - Unexpected error:', err)
       setError('Erro inesperado. Tente novamente.')
       setErrorType('general')
     }
   }
 
   const getErrorMessage = () => {
+    console.log('getErrorMessage called with errorType:', errorType)
     switch (errorType) {
       case 'email':
         return 'Este email já está cadastrado. Tente fazer login ou use outro email.'
