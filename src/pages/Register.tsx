@@ -43,11 +43,8 @@ const Register: React.FC = () => {
       const result = await register(email, currentPassword, name);
 
       if (result.success) {
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
         navigate('/dashboard');
+        // Não limpe os campos aqui, pois o componente será desmontado
       } else {
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
