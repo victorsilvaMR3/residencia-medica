@@ -17,62 +17,39 @@ const Register: React.FC = () => {
   const errorRef = useRef({ error: '', errorType: 'general' as 'email' | 'general' })
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Register - handleSubmit called, current state:', { error, errorType })
-    // Remover o clear de erro daqui
-    // setError('')
-    // setErrorType('general')
-    // console.log('Register - State cleared')
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem')
-      setErrorType('general')
-      return
+      setError('As senhas não coincidem');
+      setErrorType('general');
+      return;
     }
 
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres')
-      setErrorType('general')
-      return
+      setError('A senha deve ter pelo menos 6 caracteres');
+      setErrorType('general');
+      return;
     }
 
     // Limpar erro só antes de tentar registrar
-    setError('')
-    setErrorType('general')
-    console.log('Register - State cleared (após validações)')
+    setError('');
+    setErrorType('general');
 
     try {
-      const result = await register(email, password, name)
-      
+      const result = await register(email, password, name);
+
       if (result.success) {
-        navigate('/dashboard')
+        navigate('/dashboard');
       } else {
-        console.log('Register page - Error received:', result)
-        console.log('Register page - About to update state with:', { error: result.error, errorType: result.errorType })
-        
-        // Atualizar estado e ref
-        const newError = result.error || 'Erro ao criar conta'
-        const newErrorType = result.errorType || 'general'
-        
-        setError(newError)
-        setErrorType(newErrorType)
-        errorRef.current = { error: newError, errorType: newErrorType }
-        
-        console.log('Register page - State updated:', { error: newError, errorType: newErrorType })
-        console.log('Register page - Ref updated:', errorRef.current)
-        
-        // Forçar re-render para testar
-        setTimeout(() => {
-          console.log('Register page - State after timeout:', { error, errorType })
-          console.log('Register page - Ref after timeout:', errorRef.current)
-        }, 100)
+        setError(result.error || 'Erro ao criar conta');
+        setErrorType(result.errorType || 'general');
+        errorRef.current = { error: result.error || '', errorType: result.errorType || 'general' };
       }
     } catch (err) {
-      console.log('Register page - Unexpected error:', err)
-      setError('Erro inesperado. Tente novamente.')
-      setErrorType('general')
+      setError('Erro inesperado. Tente novamente.');
+      setErrorType('general');
     }
-  }, [email, password, name, register, navigate, error, errorType])
+  }, [email, password, name, register, navigate]);
 
   const getErrorMessage = () => {
     console.log('getErrorMessage called with errorType:', errorType, 'and error:', error)
