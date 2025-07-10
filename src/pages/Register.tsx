@@ -16,27 +16,31 @@ const Register: React.FC = () => {
   const navigate = useNavigate()
   const errorRef = useRef({ error: '', errorType: 'general' as 'email' | 'general' })
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
+    const confirmPasswordInput = form.elements.namedItem('confirmPassword') as HTMLInputElement;
+    const currentPassword = passwordInput?.value || '';
+    const currentConfirmPassword = confirmPasswordInput?.value || '';
 
-    if (password !== confirmPassword) {
+    if (currentPassword !== currentConfirmPassword) {
       setError('As senhas não coincidem');
       setErrorType('general');
       return;
     }
 
-    if (password.length < 6) {
+    if (currentPassword.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres');
       setErrorType('general');
       return;
     }
 
-    // Limpar erro só antes de tentar registrar
     setError('');
     setErrorType('general');
 
     try {
-      const result = await register(email, password, name);
+      const result = await register(email, currentPassword, name);
 
       if (result.success) {
         navigate('/dashboard');
@@ -49,7 +53,7 @@ const Register: React.FC = () => {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
     }
-  }, [email, password, name, register, navigate]);
+  }, [email, name, register, navigate]);
 
   const getErrorMessage = () => {
     console.log('getErrorMessage called with errorType:', errorType, 'and error:', error)
