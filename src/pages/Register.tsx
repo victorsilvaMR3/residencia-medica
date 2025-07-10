@@ -1,3 +1,4 @@
+// Forçar novo deploy - debug erro de exibição de mensagem de email já cadastrado
 import React, { useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -12,6 +13,7 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [errorType, setErrorType] = useState<'email' | 'general'>('general')
+  const [forceRender, setForceRender] = useState(0);
   const { register, loading } = useAuth()
   const navigate = useNavigate()
   const errorRef = useRef({ error: '', errorType: 'general' as 'email' | 'general' })
@@ -43,9 +45,9 @@ const Register: React.FC = () => {
       const result = await register(email, currentPassword, name);
 
       if (result.success) {
-        navigate('/dashboard');
-        // Não limpe os campos aqui, pois o componente será desmontado
+        // navigate('/dashboard'); // Remover temporariamente para depuração
       } else {
+        console.log('Entrou no else do erro do backend', result);
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
         errorRef.current = { error: result.error || '', errorType: result.errorType || 'general' };
@@ -54,7 +56,7 @@ const Register: React.FC = () => {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
     }
-  }, [email, name, register, navigate]);
+  }, [email, name, register]);
 
   const getErrorMessage = () => {
     
@@ -154,108 +156,4 @@ const Register: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`input-field pl-10 ${errorType === 'email' ? 'border-error-300 focus:border-error-500 focus:ring-error-500' : ''}`}
-                  placeholder="seu@email.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Senha
-              </label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-10 pr-10"
-                  placeholder="Mínimo 6 caracteres"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirmar senha
-              </label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input-field pl-10 pr-10"
-                  placeholder="Confirme sua senha"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              id="agree-terms"
-              name="agree-terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-success-600 focus:ring-success-500 border-gray-300 rounded"
-            />
-            <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-900">
-              Concordo com os{' '}
-              <a href="#" className="text-success-600 hover:text-success-500">
-                termos de uso
-              </a>{' '}
-              e{' '}
-              <a href="#" className="text-success-600 hover:text-success-500">
-                política de privacidade
-              </a>
-            </label>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-success-600 hover:bg-success-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Criando conta...' : 'Criar conta'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-export default Register 
+                  className={`
