@@ -15,8 +15,6 @@ const Register: React.FC = () => {
   const { register, loading } = useAuth()
   const navigate = useNavigate()
 
-  console.log('Register component rendered with state:', { error, errorType })
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Register - handleSubmit called, current state:', { error, errorType })
@@ -42,9 +40,20 @@ const Register: React.FC = () => {
       } else {
         console.log('Register page - Error received:', result)
         console.log('Register page - About to update state with:', { error: result.error, errorType: result.errorType })
-        setError(result.error || 'Erro ao criar conta')
-        setErrorType(result.errorType || 'general')
-        console.log('Register page - State updated:', { error: result.error, errorType: result.errorType })
+        
+        // Atualizar estado de forma síncrona para testar
+        const newError = result.error || 'Erro ao criar conta'
+        const newErrorType = result.errorType || 'general'
+        
+        setError(newError)
+        setErrorType(newErrorType)
+        
+        console.log('Register page - State updated:', { error: newError, errorType: newErrorType })
+        
+        // Forçar re-render para testar
+        setTimeout(() => {
+          console.log('Register page - State after timeout:', { error, errorType })
+        }, 100)
       }
     } catch (err) {
       console.log('Register page - Unexpected error:', err)
