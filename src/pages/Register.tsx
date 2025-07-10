@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
@@ -14,8 +14,9 @@ const Register: React.FC = () => {
   const [errorType, setErrorType] = useState<'email' | 'general'>('general')
   const { register, loading } = useAuth()
   const navigate = useNavigate()
+  const errorRef = useRef({ error: '', errorType: 'general' as 'email' | 'general' })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Register - handleSubmit called, current state:', { error, errorType })
     setError('')
@@ -41,18 +42,21 @@ const Register: React.FC = () => {
         console.log('Register page - Error received:', result)
         console.log('Register page - About to update state with:', { error: result.error, errorType: result.errorType })
         
-        // Atualizar estado de forma síncrona para testar
+        // Atualizar estado e ref
         const newError = result.error || 'Erro ao criar conta'
         const newErrorType = result.errorType || 'general'
         
         setError(newError)
         setErrorType(newErrorType)
+        errorRef.current = { error: newError, errorType: newErrorType }
         
         console.log('Register page - State updated:', { error: newError, errorType: newErrorType })
+        console.log('Register page - Ref updated:', errorRef.current)
         
         // Forçar re-render para testar
         setTimeout(() => {
           console.log('Register page - State after timeout:', { error, errorType })
+          console.log('Register page - Ref after timeout:', errorRef.current)
         }, 100)
       }
     } catch (err) {
@@ -60,7 +64,7 @@ const Register: React.FC = () => {
       setError('Erro inesperado. Tente novamente.')
       setErrorType('general')
     }
-  }
+  }, [email, password, name, register, navigate, error, errorType])
 
   const getErrorMessage = () => {
     console.log('getErrorMessage called with errorType:', errorType, 'and error:', error)
