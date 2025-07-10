@@ -43,6 +43,10 @@ const Register: React.FC = () => {
       const result = await register(email, currentPassword, name);
 
       if (result.success) {
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
         navigate('/dashboard');
       } else {
         setError(result.error || 'Erro ao criar conta');
@@ -56,8 +60,6 @@ const Register: React.FC = () => {
   }, [email, name, register, navigate]);
 
   const getErrorMessage = () => {
-    console.log('getErrorMessage called with errorType:', errorType, 'and error:', error)
-    console.log('getErrorMessage - errorRef.current:', errorRef.current)
     
     // Usar o valor mais atualizado
     const currentErrorType = errorRef.current.errorType || errorType
