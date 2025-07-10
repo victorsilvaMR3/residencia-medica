@@ -22,8 +22,10 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Register - handleSubmit called, current state:', { error, errorType })
     setError('')
     setErrorType('general')
+    console.log('Register - State cleared')
 
     if (password !== confirmPassword) {
       setError('As senhas não coincidem')
@@ -42,6 +44,7 @@ const Register: React.FC = () => {
         navigate('/dashboard')
       } else {
         console.log('Register page - Error received:', result)
+        console.log('Register page - About to update state with:', { error: result.error, errorType: result.errorType })
         setError(result.error || 'Erro ao criar conta')
         setErrorType(result.errorType || 'general')
         console.log('Register page - State updated:', { error: result.error, errorType: result.errorType })
