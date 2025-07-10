@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   Home,
@@ -12,6 +12,7 @@ import {
   Activity,
   Repeat,
   GraduationCap,
+  ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -19,6 +20,31 @@ const Sidebar: React.FC = () => {
   const location = useLocation()
   const { user, logout } = useAuth()
   const [expanded, setExpanded] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  // Fechar menu quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      setShowUserMenu(false)
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+    }
+  }
 
   const baseMenuItems = [
     { path: '/', icon: Home, label: 'Início' },
@@ -102,26 +128,52 @@ const Sidebar: React.FC = () => {
           </nav>
         </div>
       </div>
-      {/* Avatar e logout */}
+      {/* Avatar e menu do usuário */}
       <div className={`flex flex-col items-center ${expanded ? 'md:items-stretch' : ''} gap-2 p-4 border-t border-gray-100`}>
         {user && (
-          <div className={`flex items-center gap-3 mb-2 ${expanded ? '' : 'justify-center w-full'}`}>
-            <div className="w-10 h-10 rounded-full bg-success-100 flex items-center justify-center text-success-600 font-bold text-lg">
-              {user.name.charAt(0)}
-            </div>
-            <div className={`${expanded ? 'block' : 'hidden'}`}>
-              <div className="font-semibold text-gray-900 text-sm">{user.name}</div>
-              <div className="text-xs text-gray-400">{user.email}</div>
-            </div>
+          <div className="relative w-full" ref={userMenuRef}>
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className={`flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 transition-colors ${expanded ? 'justify-start' : 'justify-center'}`}
+            >
+              <div className="w-10 h-10 rounded-full bg-success-100 flex items-center justify-center text-success-600 font-bold text-lg flex-shrink-0">
+                {user.name.charAt(0)}
+              </div>
+              {expanded && (
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 text-sm truncate">{user.name}</div>
+                  <div className="text-xs text-gray-400 truncate">{user.email}</div>
+                </div>
+              )}
+              {expanded && (
+                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              )}
+            </button>
+            
+            {/* Dropdown menu */}
+            {showUserMenu && expanded && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="py-1">
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    <span>Meu Perfil</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-        <button
-          onClick={logout}
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-red-500 transition-colors text-sm w-full ${expanded ? 'justify-start' : 'justify-center'}`}
-        >
-          <LogOut className="h-4 w-4" />
-          <span className={`${expanded ? 'inline' : 'hidden'}`}>Sair</span>
-        </button>
       </div>
     </aside>
   )
