@@ -116,6 +116,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!response.ok) {
         const errorData = await response.json()
         
+        // Log para debug
+        console.log('Register error:', { status: response.status, error: errorData.error })
+        
         // Determinar o tipo de erro baseado no status HTTP
         let errorType: 'email' | 'general' = 'general'
         if (response.status === 400 && errorData.error?.includes('já cadastrado')) {
