@@ -1,5 +1,5 @@
 // Forçar novo deploy - debug erro de exibição de mensagem de email já cadastrado
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
@@ -15,7 +15,6 @@ const Register: React.FC = () => {
   const [errorType, setErrorType] = useState<'email' | 'general'>('general')
   const { register, loading } = useAuth()
   const navigate = useNavigate()
-  const errorRef = useRef({ error: '', errorType: 'general' as 'email' | 'general' })
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +47,6 @@ const Register: React.FC = () => {
         console.log('Entrou no else do erro do backend', result);
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
-        errorRef.current = { error: result.error || '', errorType: result.errorType || 'general' };
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
@@ -57,19 +55,16 @@ const Register: React.FC = () => {
   }, [email, name, register]);
 
   const getErrorMessage = () => {
-    const currentErrorType = errorRef.current.errorType || errorType
-    const currentError = errorRef.current.error || error
-    switch (currentErrorType) {
+    switch (errorType) {
       case 'email':
         return 'Este email já está cadastrado. Tente fazer login ou use outro email.'
       default:
-        return currentError || 'Erro ao criar conta. Tente novamente.'
+        return error || 'Erro ao criar conta. Tente novamente.'
     }
   }
 
   const getErrorIcon = () => {
-    const currentErrorType = errorRef.current.errorType || errorType
-    switch (currentErrorType) {
+    switch (errorType) {
       case 'email':
         return <Mail className="h-5 w-5" />
       default:
@@ -95,6 +90,10 @@ const Register: React.FC = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off">
+          {/* DEBUG: Exibir valores de error e errorType */}
+          <div style={{fontSize: '10px', color: 'gray'}}>
+            error: {error} | errorType: {errorType}
+          </div>
           {error && (
             <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
