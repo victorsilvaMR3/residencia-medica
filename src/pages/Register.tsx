@@ -66,8 +66,21 @@ const Register: React.FC = () => {
       //   console.log('Erro setado:', result.error, result.errorType);
       //   console.log('error depois do setError:', result.error || 'Erro ao criar conta');
       // }
-      setError('Teste erro backend');
-      setErrorType('email');
+      //
+      // Descomentar chamada ao register para depuração:
+      const result = await register(email, currentPassword, name);
+      if (result.success) {
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setError('');
+        setErrorType('general');
+      } else {
+        console.log('Resultado do register:', result);
+        setError(result.error || 'Erro ao criar conta');
+        setErrorType(result.errorType || 'general');
+      }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
