@@ -16,25 +16,39 @@ const AdminUsers: React.FC = () => {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
 
+  console.log('Componente AdminUsers está sendo renderizado!');
+  console.log('User no AdminUsers:', user);
+  console.log('Loading no AdminUsers (useAuth):', loading);
+  console.log('Fetching no AdminUsers (useState):', fetching);
+
   useEffect(() => {
     const fetchUsers = async () => {
       setFetching(true);
       setError('');
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        console.log('API URL:', import.meta.env.VITE_API_URL);
+        console.log('Token:', token);
+        const url = `${import.meta.env.VITE_API_URL}/api/admin/users`;
+        console.log('Fetch URL:', url);
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error('Erro ao buscar usuários');
+        console.log('Response status:', res.status);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('Response error text:', text);
+          throw new Error(`Erro: ${res.status} - ${text}`);
+        }
         const data = await res.json();
+        console.log('Dados recebidos:', data);
         setUsers(data.map((u: any) => ({
           ...u,
           createdAt: u.createdAt || u.created_at // compatibilidade
         })));
       } catch (err: any) {
         setError(err.message || 'Erro ao buscar usuários');
+        console.error('Erro ao buscar usuários:', err);
       } finally {
         setFetching(false);
       }
@@ -42,8 +56,21 @@ const AdminUsers: React.FC = () => {
     fetchUsers();
   }, []);
 
-  if (loading) return <div className="p-8 text-center">Carregando...</div>;
+  if (loading || fetching) return <div className="p-8 text-center">Carregando...</div>;
   if (!user || user.role !== 'admin') return <Navigate to="/" replace />;
+
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 text-center">
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4 font-semibold">{error}</div>
+        <p className="text-gray-600">Não foi possível carregar a lista de usuários. Tente novamente ou contate o suporte.</p>
+      </div>
+    );
+  }
+
+  if (!fetching && users.length === 0) {
+    return <div className="p-8 text-center">Nenhum usuário encontrado.</div>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-8">
