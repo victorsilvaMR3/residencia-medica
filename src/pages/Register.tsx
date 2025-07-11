@@ -17,7 +17,7 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [errorType, setErrorType] = useState<'email' | 'general'>('general')
-  const { register, loading } = useAuth()
+  const { register, loading, registerError, setRegisterError } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,10 +76,12 @@ const Register: React.FC = () => {
         setConfirmPassword('');
         setError('');
         setErrorType('general');
+        setRegisterError(null);
       } else {
         console.log('Resultado do register:', result);
         setError(result.error || 'Erro ao criar conta');
         setErrorType(result.errorType || 'general');
+        // Não limpar registerError aqui, pois já é setado no contexto
       }
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
@@ -105,6 +107,8 @@ const Register: React.FC = () => {
     }
   }
 
+  // Antes do return do JSX
+  console.log('Renderizando Register:', { error, errorType });
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -123,13 +127,13 @@ const Register: React.FC = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off" method="post" noValidate>
-          {error && (
+          {((error || registerError) && (
             <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
                 {getErrorIcon()}
               </div>
               <div>
-                <p className="text-sm font-medium">{getErrorMessage()}</p>
+                <p className="text-sm font-medium">{registerError || getErrorMessage()}</p>
                 {errorType === 'email' && (
                   <p className="text-xs mt-1">
                     <Link to="/login" className="text-error-600 hover:text-error-500 underline">
@@ -139,7 +143,7 @@ const Register: React.FC = () => {
                 )}
               </div>
             </div>
-          )}
+          ))}
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">

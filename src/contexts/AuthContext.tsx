@@ -10,6 +10,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string; errorType?: 'email' | 'password' | 'general' }>
   register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string; errorType?: 'email' | 'general' }>
   logout: () => Promise<void>
+  registerError: string | null
+  setRegisterError: (error: string | null) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -32,9 +34,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Remover linha de declaração de import.meta (não necessária)
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  console.log('AuthProvider renderizou');
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [registerError, setRegisterError] = useState<string | null>(null)
 
   // Carregar usuário do localStorage ao iniciar
   useEffect(() => {
@@ -107,51 +109,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (email: string, password: string, name: string) => {
     setLoading(true)
+    setRegisterError(null)
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       })
-      
       if (!response.ok) {
         const errorData = await response.json()
-        
-        // Log detalhado para debug
-        console.log('Register error details:', { 
-          status: response.status, 
-          error: errorData.error,
-          errorType: errorData.error === 'Email já cadastrado' ? 'email' : 'general'
-        })
-        
         // Determinar o tipo de erro baseado no status HTTP e mensagem
         let errorType: 'email' | 'general' = 'general'
         if (response.status === 400 && errorData.error === 'Email já cadastrado') {
           errorType = 'email'
-          console.log('Setting errorType to email')
         }
-        
+        setRegisterError(errorData.error || 'Erro no cadastro')
         throw new Error(JSON.stringify({
           message: errorData.error || 'Erro no cadastro',
           type: errorType
         }))
       }
-      
       const data = await response.json()
       setUser(data.user)
       localStorage.setItem(USER_KEY, JSON.stringify(data.user))
       localStorage.setItem('token', data.token)
-      
+      setRegisterError(null)
       return { success: true }
     } catch (error: any) {
       try {
         const parsedError = JSON.parse(error.message)
+        setRegisterError(parsedError.message)
         return { 
           success: false, 
           error: parsedError.message, 
           errorType: parsedError.type 
         }
       } catch {
+        setRegisterError(error.message || 'Erro no cadastro')
         return { 
           success: false, 
           error: error.message || 'Erro no cadastro',
@@ -184,7 +178,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     login,
     register,
-    logout
+    logout,
+    registerError,
+    setRegisterError
   }
 
   return (
