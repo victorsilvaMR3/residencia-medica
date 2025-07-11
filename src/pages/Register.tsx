@@ -120,10 +120,6 @@ const Register: React.FC = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off" method="post" noValidate>
-          {/* DEBUG: Botão para setar erro manualmente */}
-          <button type="button" onClick={() => { setError('Erro manual'); setErrorType('general'); }} style={{marginBottom: 8, background: '#eee', padding: 4}}>
-            Setar erro manual
-          </button>
           {/* DEBUG: Exibir valores de error e errorType */}
           <div style={{fontSize: '10px', color: 'gray'}}>
             error: {error} | errorType: {errorType}
