@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home,
   BookOpen,
@@ -18,6 +18,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 const Sidebar: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuth()
   const [expanded, setExpanded] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -41,6 +42,7 @@ const Sidebar: React.FC = () => {
     try {
       await logout()
       setShowUserMenu(false)
+      navigate('/')
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }
@@ -56,7 +58,11 @@ const Sidebar: React.FC = () => {
 
   // Adicionar Admin apenas para administradores
   const menuItems = user?.role === 'admin' 
-    ? [...baseMenuItems, { path: '/admin', icon: Settings, label: 'Admin' }]
+    ? [
+        ...baseMenuItems, 
+        { path: '/admin', icon: Settings, label: 'Admin' },
+        { path: '/admin/users', icon: UserIcon, label: 'Usuários' }
+      ]
     : baseMenuItems
 
   const specialties = [
