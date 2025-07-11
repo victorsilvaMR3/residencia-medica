@@ -182,6 +182,19 @@ export class DatabaseService {
     return result.rows;
   }
 
+  static async updateUserRole(id: string, role: 'user' | 'admin' | 'moderator'): Promise<DatabaseUser | null> {
+    const result = await getPool().query(
+      'UPDATE users SET role = $2 WHERE id = $1 RETURNING *',
+      [id, role]
+    );
+    return result.rows[0] || null;
+  }
+
+  static async deleteUser(id: string): Promise<boolean> {
+    const result = await getPool().query('DELETE FROM users WHERE id = $1', [id]);
+    return (result.rowCount || 0) > 0;
+  }
+
   // Respostas dos usuários
   static async saveUserAnswer(answer: Omit<DatabaseUserAnswer, 'id' | 'answered_at'>): Promise<DatabaseUserAnswer> {
     const query = `

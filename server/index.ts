@@ -352,6 +352,54 @@ app.get('/api/admin/users', authenticateToken, requireRole(['admin']), async (re
   }
 });
 
+// Rota para alterar a role de um usuário (apenas admin)
+app.patch('/api/admin/users/:id/role', authenticateToken, requireRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    if (!['user', 'admin', 'moderator'].includes(role)) {
+      return res.status(400).json({ error: 'Role inválida' });
+    }
+    // Impedir que o admin altere a própria role
+    if (req.user && req.user.id === id) {
+      return res.status(403).json({ error: 'Você não pode alterar sua própria permissão.' });
+    }
+    const updatedUser = await DatabaseService.updateUserRole(id, role);
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    res.json({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      createdAt: updatedUser.created_at
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar role do usuário:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para excluir um usuário (apenas admin)
+app.delete('/api/admin/users/:id', authenticateToken, requireRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    // Impedir que o admin exclua a si mesmo
+    if (req.user && req.user.id === id) {
+      return res.status(403).json({ error: 'Você não pode excluir a si mesmo.' });
+    }
+    const result = await DatabaseService.deleteUser(id);
+    if (!result) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    res.json({ message: 'Usuário excluído com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir usuário:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Rota de saúde
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
