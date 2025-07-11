@@ -333,6 +333,25 @@ app.get('/api/search', async (req: Request, res: Response) => {
   }
 })
 
+// Rota para listar todos os usuários (apenas admin)
+app.get('/api/admin/users', authenticateToken, requireRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const users = await DatabaseService.getAllUsers();
+    // Retornar apenas os campos necessários
+    const result = users.map((u: any) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      createdAt: u.createdAt
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao listar usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Rota de saúde
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({

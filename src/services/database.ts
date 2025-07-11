@@ -177,6 +177,11 @@ export class DatabaseService {
     return result.rows[0]
   }
 
+  static async getAllUsers(): Promise<DatabaseUser[]> {
+    const result = await getPool().query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
+    return result.rows;
+  }
+
   // Respostas dos usuários
   static async saveUserAnswer(answer: Omit<DatabaseUserAnswer, 'id' | 'answered_at'>): Promise<DatabaseUserAnswer> {
     const query = `
