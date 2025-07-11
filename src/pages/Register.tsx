@@ -24,6 +24,10 @@ const Register: React.FC = () => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    // @ts-ignore
+    if (typeof e.returnValue !== 'undefined') e.returnValue = false;
+    // return false; // (não é necessário em React, mas pode ajudar em edge cases)
     try {
       const form = e.target as HTMLFormElement;
       const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
@@ -51,24 +55,27 @@ const Register: React.FC = () => {
       // setError('');
       // setErrorType('general');
 
-      const result = await register(email, currentPassword, name);
-      if (result.success) {
-        // Limpar campos e erro só em caso de sucesso
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setError('');
-        setErrorType('general');
-        // navigate('/dashboard'); // Remover temporariamente para depuração
-        console.log('Cadastro com sucesso, limpando campos e erro');
-      } else {
-        console.log('Entrou no else do erro do backend', result);
-        setError(result.error || 'Erro ao criar conta');
-        setErrorType(result.errorType || 'general');
-        console.log('Erro setado:', result.error, result.errorType);
-        console.log('error depois do setError:', result.error || 'Erro ao criar conta');
-      }
+      // const result = await register(email, currentPassword, name);
+      // if (result.success) {
+      //   // Limpar campos e erro só em caso de sucesso
+      //   setName('');
+      //   setEmail('');
+      //   setPassword('');
+      //   setConfirmPassword('');
+      //   setError('');
+      //   setErrorType('general');
+      //   // navigate('/dashboard'); // Remover temporariamente para depuração
+      //   console.log('Cadastro com sucesso, limpando campos e erro');
+      // } else {
+      //   console.log('Entrou no else do erro do backend', result);
+      //   setError(result.error || 'Erro ao criar conta');
+      //   setErrorType(result.errorType || 'general');
+      //   console.log('Erro setado:', result.error, result.errorType);
+      //   console.log('error depois do setError:', result.error || 'Erro ao criar conta');
+      // }
+      setError('Teste erro backend');
+      setErrorType('email');
+      console.log('Setando erro manualmente no submit');
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
@@ -112,7 +119,7 @@ const Register: React.FC = () => {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off" method="post" noValidate>
           {/* DEBUG: Botão para setar erro manualmente */}
           <button type="button" onClick={() => { setError('Erro manual'); setErrorType('general'); }} style={{marginBottom: 8, background: '#eee', padding: 4}}>
             Setar erro manual
