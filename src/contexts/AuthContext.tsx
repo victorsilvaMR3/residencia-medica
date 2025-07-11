@@ -82,8 +82,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       const data = await response.json()
-      setUser(data.user)
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+      setUser({ ...data.user, createdAt: new Date(data.user.createdAt) })
+      localStorage.setItem(USER_KEY, JSON.stringify({ ...data.user, createdAt: new Date(data.user.createdAt) }))
       localStorage.setItem('token', data.token)
       
       return { success: true }
@@ -130,8 +130,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }))
       }
       const data = await response.json()
-      setUser(data.user)
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+      setUser({ ...data.user, createdAt: new Date(data.user.createdAt) })
+      localStorage.setItem(USER_KEY, JSON.stringify({ ...data.user, createdAt: new Date(data.user.createdAt) }))
       localStorage.setItem('token', data.token)
       setRegisterError(null)
       return { success: true }
