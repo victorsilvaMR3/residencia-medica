@@ -32,6 +32,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Remover linha de declaração de import.meta (não necessária)
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  console.log('AuthProvider renderizou');
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
