@@ -65,12 +65,6 @@ const Sidebar: React.FC = () => {
       ]
     : baseMenuItems
 
-  const specialties = [
-    { name: 'Cardiologia', icon: Heart, color: 'text-red-400' },
-    { name: 'Neurologia', icon: Brain, color: 'text-success-400' },
-    { name: 'Pneumologia', icon: Activity, color: 'text-green-400' },
-  ]
-
   return (
     <aside
       className={`h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-200
@@ -113,26 +107,6 @@ const Sidebar: React.FC = () => {
             )
           })}
         </nav>
-        {/* Especialidades */}
-        <div className="mt-6">
-          <h3 className={`${expanded ? 'block' : 'hidden'} px-6 text-xs text-gray-400 font-semibold uppercase mb-2 tracking-wider transition-all duration-200`}>Especialidades</h3>
-          <nav className="flex flex-col gap-1">
-            {specialties.map((specialty) => {
-              const Icon = specialty.icon
-              return (
-                <Link
-                  key={specialty.name}
-                  to={`/questions?specialty=${specialty.name}`}
-                  className={`flex items-center ${expanded ? 'gap-3 justify-start' : 'justify-center'} px-4 py-2 rounded-xl mx-2 my-1 text-gray-500 hover:bg-gray-50 hover:text-success-600 transition-colors text-sm`}
-                  title={specialty.name}
-                >
-                  <Icon className={`h-5 w-5 ${specialty.color}`} />
-                  <span className={`${expanded ? 'inline' : 'hidden'} transition-all duration-200`}>{specialty.name}</span>
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
       </div>
       {/* Avatar e menu do usuário fixo na base */}
       <div className={`flex flex-col items-center ${expanded ? 'md:items-stretch' : ''} gap-2 p-4 border-t border-gray-100`} style={{ flexShrink: 0 }}>
