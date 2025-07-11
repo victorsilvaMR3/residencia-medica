@@ -73,13 +73,13 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`h-screen bg-white border-r border-gray-100 flex flex-col justify-between transition-all duration-200
+      className={`h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-200
         ${expanded ? 'w-64 shadow-md' : 'w-20 shadow-sm'}
       `}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <div>
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Logo */}
         <div className={`flex items-center h-20 px-4 border-b border-gray-100 transition-all duration-200 ${expanded ? 'justify-start' : 'justify-center'}`}>
           {/* Logo + título */}
@@ -94,8 +94,8 @@ const Sidebar: React.FC = () => {
             </span>
           )}
         </div>
-        {/* Menu principal */}
-        <nav className="mt-4 flex flex-col gap-1">
+        {/* Menu principal com scroll */}
+        <nav className="mt-4 flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar px-0" style={{ minHeight: 0 }}>
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = location.pathname === item.path
@@ -134,8 +134,8 @@ const Sidebar: React.FC = () => {
           </nav>
         </div>
       </div>
-      {/* Avatar e menu do usuário */}
-      <div className={`flex flex-col items-center ${expanded ? 'md:items-stretch' : ''} gap-2 p-4 border-t border-gray-100`}>
+      {/* Avatar e menu do usuário fixo na base */}
+      <div className={`flex flex-col items-center ${expanded ? 'md:items-stretch' : ''} gap-2 p-4 border-t border-gray-100`} style={{ flexShrink: 0 }}>
         {user && (
           <div className="relative w-full" ref={userMenuRef}>
             <button
@@ -155,7 +155,6 @@ const Sidebar: React.FC = () => {
                 <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               )}
             </button>
-            
             {/* Dropdown menu */}
             {showUserMenu && expanded && (
               <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
