@@ -5,10 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 const Register: React.FC = () => {
-  console.log('Register renderizou');
   useEffect(() => {
     return () => {
-      console.log('Register UNMOUNT');
     };
   }, []);
   const [name, setName] = useState('')
@@ -27,7 +25,6 @@ const Register: React.FC = () => {
     e.stopPropagation();
     // @ts-ignore
     if (typeof e.returnValue !== 'undefined') e.returnValue = false;
-    // return false; // (não é necessário em React, mas pode ajudar em edge cases)
     try {
       const form = e.target as HTMLFormElement;
       const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
@@ -38,16 +35,12 @@ const Register: React.FC = () => {
       if (currentPassword !== currentConfirmPassword) {
         setError('As senhas não coincidem');
         setErrorType('general');
-        console.log('Senha não coincide, error setado');
-        console.log('error depois do setError:', 'As senhas não coincidem');
         return;
       }
 
       if (currentPassword.length < 6) {
         setError('A senha deve ter pelo menos 6 caracteres');
         setErrorType('general');
-        console.log('Senha curta, error setado');
-        console.log('error depois do setError:', 'A senha deve ter pelo menos 6 caracteres');
         return;
       }
 
@@ -75,12 +68,9 @@ const Register: React.FC = () => {
       // }
       setError('Teste erro backend');
       setErrorType('email');
-      console.log('Setando erro manualmente no submit');
     } catch (err) {
       setError('Erro inesperado. Tente novamente.');
       setErrorType('general');
-      console.log('Erro inesperado, error setado');
-      console.log('error depois do setError:', 'Erro inesperado. Tente novamente.');
     }
   }, [email, name, register]);
 
@@ -120,10 +110,6 @@ const Register: React.FC = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off" method="post" noValidate>
-          {/* DEBUG: Exibir valores de error e errorType */}
-          <div style={{fontSize: '10px', color: 'gray'}}>
-            error: {error} | errorType: {errorType}
-          </div>
           {error && (
             <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
