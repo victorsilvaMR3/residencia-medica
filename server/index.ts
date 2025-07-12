@@ -34,15 +34,18 @@ interface AuthenticatedRequest extends Request {
 
 // Middleware
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  'https://residencia-medica.vercel.app',
   'http://localhost:3000'
-].filter(Boolean);
+];
 
 app.use(cors({
-  origin: [
-    'https://residencia-medica.vercel.app',
-    'http://localhost:3000'
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
