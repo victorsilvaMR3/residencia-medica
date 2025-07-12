@@ -39,7 +39,12 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: '*',
+  origin: [
+    'https://residencia-medica.vercel.app',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }))
 
