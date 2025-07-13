@@ -13,6 +13,9 @@ import QuestionDetail from './pages/QuestionDetail'
 import QuestionsList from './pages/QuestionsList'
 import Admin from './pages/Admin'
 import Revisoes from './pages/Revisoes'
+import AdminUsers from './pages/AdminUsers'
+
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
 
 function App() {
   return (
@@ -33,6 +36,14 @@ function App() {
                   <Admin />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

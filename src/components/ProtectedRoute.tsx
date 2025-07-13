@@ -15,7 +15,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, loading } = useAuth()
 
+  console.log('🔍 [ProtectedRoute] Renderizando com:', {
+    user: user?.email,
+    userRole: user?.role,
+    loading,
+    requiredRole,
+    fallbackPath
+  })
+
   if (loading) {
+    console.log('🔍 [ProtectedRoute] Mostrando loading...')
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-success-600"></div>
@@ -24,13 +33,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
+    console.log('🔍 [ProtectedRoute] Usuário não encontrado, redirecionando para /login')
     return <Navigate to="/login" replace />
   }
 
   // Verificar se o usuário tem a role necessária
   const hasRequiredRole = user.role === requiredRole || user.role === 'admin'
+  console.log('🔍 [ProtectedRoute] Verificação de role:', {
+    userRole: user.role,
+    requiredRole,
+    hasRequiredRole
+  })
 
   if (!hasRequiredRole) {
+    console.log('🔍 [ProtectedRoute] Usuário não tem permissão, mostrando tela de acesso negado')
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
@@ -55,6 +71,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     )
   }
 
+  console.log('🔍 [ProtectedRoute] Acesso permitido, renderizando children')
   return <>{children}</>
 }
 

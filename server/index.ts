@@ -35,7 +35,8 @@ interface AuthenticatedRequest extends Request {
 // Middleware
 const allowedOrigins = [
   'https://residencia-medica.vercel.app',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:3002' // Adicionado temporariamente para teste
 ];
 
 app.use(cors({

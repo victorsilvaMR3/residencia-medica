@@ -38,7 +38,10 @@ const Navbar: React.FC = () => {
               <span className="hidden md:block text-sm font-semibold">{user.name.split(' ')[0]}</span>
             </button>
             <button
-              onClick={logout}
+              onClick={async () => {
+                await logout();
+                navigate('/');
+              }}
               className="flex items-center gap-2 px-3 py-2 rounded-full text-gray-400 hover:text-red-500 transition-colors"
               title="Sair"
             >

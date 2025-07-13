@@ -20,6 +20,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  console.log('User na Sidebar:', user);
   const [expanded, setExpanded] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -102,7 +103,9 @@ const Sidebar: React.FC = () => {
                 title={item.label}
               >
                 <Icon className="h-5 w-5" />
-                <span className={`${expanded ? 'inline' : 'hidden'} transition-all duration-200`}>{item.label}</span>
+                <span className={`${expanded ? 'inline' : 'hidden'} transition-all duration-200`}>
+                  {item.label}
+                </span>
               </Link>
             )
           })}
@@ -158,4 +161,4 @@ const Sidebar: React.FC = () => {
   )
 }
 
-export default Sidebar 
+export default Sidebar
