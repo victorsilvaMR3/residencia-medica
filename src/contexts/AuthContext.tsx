@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '../types'
+import { isTokenExpired } from '../utils/jwt'
 
 // Remover redefinição de interface ImportMeta (já existe globalmente)
 
@@ -44,21 +45,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('🔍 [AuthContext] API_URL:', API_URL)
     
     const stored = localStorage.getItem(USER_KEY)
+    const token = localStorage.getItem('token')
     console.log('🔍 [AuthContext] Dados do localStorage:', stored ? 'encontrados' : 'não encontrados')
+    console.log('🔍 [AuthContext] Token encontrado:', token ? 'sim' : 'não')
     
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        console.log('🔍 [AuthContext] Usuário parseado:', parsed)
-        parsed.createdAt = new Date(parsed.createdAt)
-        setUser(parsed)
-        console.log('🔍 [AuthContext] Usuário definido no estado:', parsed)
-      } catch (error) {
-        console.error('❌ [AuthContext] Erro ao parsear usuário do localStorage:', error)
+    if (stored && token) {
+      // Verificar validade do token
+      if (isTokenExpired(token)) {
+        console.warn('⚠️ [AuthContext] Token expirado ou inválido. Fazendo logout automático.')
         setUser(null)
+        localStorage.removeItem(USER_KEY)
+        localStorage.removeItem('token')
+      } else {
+        try {
+          const parsed = JSON.parse(stored)
+          console.log('🔍 [AuthContext] Usuário parseado:', parsed)
+          parsed.createdAt = new Date(parsed.createdAt)
+          setUser(parsed)
+          console.log('🔍 [AuthContext] Usuário definido no estado:', parsed)
+        } catch (error) {
+          console.error('❌ [AuthContext] Erro ao parsear usuário do localStorage:', error)
+          setUser(null)
+        }
       }
     } else {
-      console.log('🔍 [AuthContext] Nenhum usuário encontrado no localStorage')
+      console.log('🔍 [AuthContext] Nenhum usuário encontrado no localStorage ou token ausente')
     }
     
     setLoading(false)
