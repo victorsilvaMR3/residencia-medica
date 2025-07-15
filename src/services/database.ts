@@ -1,5 +1,5 @@
 import { Pool } from 'pg'
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // Variável global para o pool
 let pool: Pool | null = null
