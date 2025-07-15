@@ -13,19 +13,23 @@ export interface User {
 // Tipos de questão
 export interface Question {
   id: string;
-  specialty: string; // especialidade médica
-  topic: string; // tema principal
-  subtopic: string; // subtema
-  board: string; // banca examinadora
-  year: number;
-  statement: string; // enunciado
-  imageURL?: string; // URL da imagem se houver
+  tema: string;
+  microtemas: string[];
+  instituicao: string;
+  ano: number;
+  regiao: string;
+  finalidade: string;
+  specialty: string;
+  topic: string;
+  subtopic?: string;
+  board?: string;
+  statement: string;
   alternatives: Alternative[];
-  correctAnswer: string; // ID da alternativa correta
-  explanation: string; // comentário didático
-  comment?: string; // comentário adicional/pessoal
+  correctAnswer: string;
+  explanation?: string;
+  comment?: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  tags: string[]; // tags para busca
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -91,16 +95,20 @@ export interface Ranking {
 
 // Tipos de filtros
 export interface QuestionFilters {
+  tema?: string;
+  microtemas?: string[];
+  instituicao?: string;
+  ano?: number;
+  regiao?: string;
+  finalidade?: string;
   specialty?: string;
   topic?: string;
   subtopic?: string;
   board?: string;
-  year?: number;
-  years?: number[]; // Suporte a múltiplos anos
+  years?: number[];
   difficulty?: 'easy' | 'medium' | 'hard';
   answered?: boolean;
   markedForReview?: boolean;
-  // Filtros avançados
   institutions?: string[];
   regions?: string[];
   purposes?: string[];

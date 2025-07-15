@@ -1,4 +1,5 @@
 import { Pool } from 'pg'
+import { PrismaClient } from '../generated/prisma'
 
 // Variável global para o pool
 let pool: Pool | null = null
@@ -26,18 +27,26 @@ function getPool(): Pool {
   return pool
 }
 
+// Instância única do Prisma Client
+export const prisma = new PrismaClient()
+
 // Tipos para o banco
 export interface DatabaseQuestion {
   id: string
+  tema: string
+  microtemas: string[]
+  instituicao: string
+  ano: number
+  regiao: string
+  finalidade: string
   specialty: string
   topic: string
-  subtopic: string
-  board: string
-  year: number
+  subtopic?: string
+  board?: string
   statement: string
   alternatives: Array<{ id: string; text: string; letter: 'A' | 'B' | 'C' | 'D' | 'E' }>
   correct_answer: string
-  explanation: string
+  explanation?: string
   comment?: string
   difficulty: 'easy' | 'medium' | 'hard'
   tags: string[]
@@ -70,157 +79,156 @@ export interface DatabaseUserAnswer {
 export class DatabaseService {
   // Questões
   static async getQuestions(filters?: any): Promise<DatabaseQuestion[]> {
-    let query = 'SELECT * FROM questions WHERE 1=1'
-    const params: any[] = []
-    let paramIndex = 1
-
-    if (filters?.specialty) {
-      query += ` AND specialty = $${paramIndex++}`
-      params.push(filters.specialty)
-    }
-
-    if (filters?.year) {
-      query += ` AND year = $${paramIndex++}`
-      params.push(filters.year)
-    }
-
-    if (filters?.difficulty) {
-      query += ` AND difficulty = $${paramIndex++}`
-      params.push(filters.difficulty)
-    }
-
-    query += ' ORDER BY created_at DESC'
-
-    try {
-      const result = await getPool().query(query, params)
-      return result.rows
-    } catch (err) {
-      console.error('Erro no getQuestions:', err)
-      throw err
-    }
+    const where: any = {}
+    if (filters?.tema) where.tema = filters.tema
+    if (filters?.microtemas) where.microtemas = { hasSome: filters.microtemas }
+    if (filters?.instituicao) where.instituicao = filters.instituicao
+    if (filters?.ano) where.ano = filters.ano
+    if (filters?.regiao) where.regiao = filters.regiao
+    if (filters?.finalidade) where.finalidade = filters.finalidade
+    if (filters?.specialty) where.specialty = filters.specialty
+    if (filters?.year) where.ano = filters.year // compatibilidade retroativa
+    if (filters?.difficulty) where.difficulty = filters.difficulty
+    const questions = await prisma.question.findMany({
+      where,
+      orderBy: { created_at: 'desc' },
+    })
+    return questions as DatabaseQuestion[]
   }
 
   static async getQuestionById(id: string): Promise<DatabaseQuestion | null> {
-    const result = await getPool().query('SELECT * FROM questions WHERE id = $1', [id])
-    return result.rows[0] || null
+    const question = await prisma.question.findUnique({ where: { id } })
+    return question as DatabaseQuestion | null
   }
 
   static async createQuestion(question: Omit<DatabaseQuestion, 'id' | 'created_at' | 'updated_at'>): Promise<DatabaseQuestion> {
-    const query = `
-      INSERT INTO questions (
-        specialty, topic, subtopic, board, year, statement, 
-        alternatives, correct_answer, explanation, comment, 
-        difficulty, tags
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING *
-    `
-    const values = [
-      question.specialty,
-      question.topic,
-      question.subtopic,
-      question.board,
-      question.year,
-      question.statement,
-      JSON.stringify(question.alternatives),
-      question.correct_answer,
-      question.explanation,
-      question.comment,
-      question.difficulty,
-      question.tags
-    ]
-
-    const result = await getPool().query(query, values)
-    return result.rows[0]
+    const created = await prisma.question.create({
+      data: {
+        tema: question.tema,
+        microtemas: question.microtemas,
+        instituicao: question.instituicao,
+        ano: question.ano,
+        regiao: question.regiao,
+        finalidade: question.finalidade,
+        specialty: question.specialty,
+        topic: question.topic,
+        subtopic: question.subtopic,
+        board: question.board,
+        statement: question.statement,
+        alternatives: question.alternatives,
+        correct_answer: question.correct_answer,
+        explanation: question.explanation,
+        comment: question.comment,
+        difficulty: question.difficulty,
+        tags: question.tags,
+      },
+    })
+    return created as DatabaseQuestion
   }
 
   static async updateQuestion(id: string, updates: Partial<DatabaseQuestion>): Promise<DatabaseQuestion | null> {
-    const fields = Object.keys(updates).filter(key => key !== 'id' && key !== 'created_at')
-    const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(', ')
-    
-    const query = `
-      UPDATE questions 
-      SET ${setClause}, updated_at = NOW()
-      WHERE id = $1
-      RETURNING *
-    `
-    
-    const values = [id, ...fields.map(field => updates[field as keyof DatabaseQuestion])]
-    const result = await getPool().query(query, values)
-    return result.rows[0] || null
+    const updated = await prisma.question.update({
+      where: { id },
+      data: {
+        tema: updates.tema,
+        microtemas: updates.microtemas,
+        instituicao: updates.instituicao,
+        ano: updates.ano,
+        regiao: updates.regiao,
+        finalidade: updates.finalidade,
+        specialty: updates.specialty,
+        topic: updates.topic,
+        subtopic: updates.subtopic,
+        board: updates.board,
+        statement: updates.statement,
+        alternatives: updates.alternatives,
+        correct_answer: updates.correct_answer,
+        explanation: updates.explanation,
+        comment: updates.comment,
+        difficulty: updates.difficulty,
+        tags: updates.tags,
+      },
+    })
+    return updated as DatabaseQuestion | null
   }
 
   static async deleteQuestion(id: string): Promise<boolean> {
-    const result = await getPool().query('DELETE FROM questions WHERE id = $1', [id])
-    return (result.rowCount || 0) > 0
+    await prisma.question.delete({ where: { id } })
+    return true
   }
 
   // Usuários
   static async getUserById(id: string): Promise<DatabaseUser | null> {
-    const result = await getPool().query('SELECT * FROM users WHERE id = $1', [id])
-    return result.rows[0] || null
+    const user = await prisma.user.findUnique({ where: { id } })
+    return user as DatabaseUser | null
   }
 
   static async getUserByEmail(email: string): Promise<DatabaseUser | null> {
-    const result = await getPool().query('SELECT * FROM users WHERE email = $1', [email])
-    return result.rows[0] || null
+    const user = await prisma.user.findUnique({ where: { email } })
+    return user as DatabaseUser | null
   }
 
   static async createUser(user: Omit<DatabaseUser, 'id' | 'created_at'>): Promise<DatabaseUser> {
-    console.log('createUser payload:', user);
-    const query = `
-      INSERT INTO users (email, name, password, role, subscription)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `
-    const values = [user.email, user.name, user.password, user.role, user.subscription]
-    const result = await getPool().query(query, values)
-    return result.rows[0]
+    const created = await prisma.user.create({
+      data: {
+        email: user.email,
+        name: user.name,
+        password: user.password,
+        role: user.role,
+        subscription: user.subscription,
+      },
+    })
+    return created as DatabaseUser
   }
 
   static async getAllUsers(): Promise<DatabaseUser[]> {
-    const result = await getPool().query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
-    return result.rows;
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        created_at: true,
+      },
+      orderBy: { created_at: 'desc' },
+    })
+    return users as DatabaseUser[]
   }
 
   static async updateUserRole(id: string, role: 'user' | 'admin' | 'moderator'): Promise<DatabaseUser | null> {
-    const result = await getPool().query(
-      'UPDATE users SET role = $2 WHERE id = $1 RETURNING *',
-      [id, role]
-    );
-    return result.rows[0] || null;
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role },
+    })
+    return updated as DatabaseUser | null
   }
 
   static async deleteUser(id: string): Promise<boolean> {
-    const result = await getPool().query('DELETE FROM users WHERE id = $1', [id]);
-    return (result.rowCount || 0) > 0;
+    const deleted = await prisma.user.delete({ where: { id } })
+    return !!deleted
   }
 
   // Respostas dos usuários
   static async saveUserAnswer(answer: Omit<DatabaseUserAnswer, 'id' | 'answered_at'>): Promise<DatabaseUserAnswer> {
-    const query = `
-      INSERT INTO user_answers (user_id, question_id, selected_answer, is_correct, time_spent, marked_for_review)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *
-    `
-    const values = [
-      answer.user_id,
-      answer.question_id,
-      answer.selected_answer,
-      answer.is_correct,
-      answer.time_spent,
-      answer.marked_for_review
-    ]
-    
-    const result = await getPool().query(query, values)
-    return result.rows[0]
+    const created = await prisma.userAnswer.create({
+      data: {
+        user_id: answer.user_id,
+        question_id: answer.question_id,
+        selected_answer: answer.selected_answer,
+        is_correct: answer.is_correct,
+        time_spent: answer.time_spent,
+        marked_for_review: answer.marked_for_review,
+      },
+    })
+    return created as DatabaseUserAnswer
   }
 
   static async getUserAnswers(userId: string): Promise<DatabaseUserAnswer[]> {
-    const result = await getPool().query(
-      'SELECT * FROM user_answers WHERE user_id = $1 ORDER BY answered_at DESC',
-      [userId]
-    )
-    return result.rows
+    const answers = await prisma.userAnswer.findMany({
+      where: { user_id: userId },
+      orderBy: { answered_at: 'desc' },
+    })
+    return answers as DatabaseUserAnswer[]
   }
 
   // Estatísticas

@@ -247,7 +247,52 @@ app.get('/api/questions/:id', async (req: Request, res: Response) => {
 // Rotas protegidas (apenas admin)
 app.post('/api/questions', authenticateToken, requireRole(['admin']), async (req: Request, res: Response) => {
   try {
-    const question = await DatabaseService.createQuestion(req.body)
+    const {
+      tema,
+      microtemas,
+      instituicao,
+      ano,
+      regiao,
+      finalidade,
+      specialty,
+      topic,
+      subtopic,
+      board,
+      statement,
+      alternatives,
+      correct_answer,
+      explanation,
+      comment,
+      difficulty,
+      tags
+    } = req.body
+
+    // Validação dos campos obrigatórios
+    if (!tema || !microtemas || !instituicao || !ano || !regiao || !finalidade || !specialty || !topic || !statement || !alternatives || !correct_answer || !difficulty) {
+      return res.status(400).json({ error: 'Preencha todos os campos obrigatórios.' })
+    }
+
+    const question = await DatabaseService.createQuestion({
+      tema,
+      microtemas,
+      instituicao,
+      ano,
+      regiao,
+      finalidade,
+      specialty,
+      topic,
+      subtopic,
+      board,
+      statement,
+      alternatives,
+      correct_answer,
+      explanation,
+      comment,
+      difficulty,
+      tags,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
     res.status(201).json(question)
   } catch (error) {
     console.error('Erro ao criar questão:', error)

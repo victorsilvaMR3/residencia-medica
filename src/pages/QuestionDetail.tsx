@@ -33,7 +33,7 @@ const QuestionDetail: React.FC = () => {
         </div>
         <div className="flex flex-wrap gap-2 mb-2">
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.board}</span>
-          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.year}</span>
+          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.ano}</span>
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.specialty}</span>
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.topic}</span>
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.subtopic}</span>

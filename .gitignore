@@ -96,3 +96,5 @@ temp/
 node_modules/
 dist/
 .vite/
+
+/src/generated/prisma

@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  password     String
+  role         Role     @default(user)
+  subscription Subscription @default(free)
+  created_at   DateTime @default(now())
+  userAnswers  UserAnswer[]
+}
+
+enum Role {
+  user
+  admin
+  moderator
+}
+
+enum Subscription {
+  free
+  pro
+}
+
+model Question {
+  id             String   @id @default(uuid())
+  tema           String
+  microtemas     String[]
+  instituicao    String
+  ano            Int
+  regiao         String
+  finalidade     String
+  specialty      String
+  topic          String
+  subtopic       String?
+  board          String?
+  statement      String
+  alternatives   Json
+  correct_answer String
+  explanation    String?
+  comment        String?
+  difficulty     Difficulty
+  tags           String[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  userAnswers    UserAnswer[]
+}
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+model UserAnswer {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id         String
+  question        Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  question_id     String
+  selected_answer String
+  is_correct      Boolean
+  time_spent      Int?
+  answered_at     DateTime @default(now())
+  marked_for_review Boolean @default(false)
+}

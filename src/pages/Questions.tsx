@@ -47,7 +47,7 @@ const allFilterTags = [
 ]
 
 const Questions: React.FC = () => {
-  const { questions, getFilteredQuestions, setFilters } = useQuestions()
+  const { questions, setFilters, filters } = useQuestions()
   const [expanded, setExpanded] = useState<string | null>(null)
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
   const [selectedSubtopics, setSelectedSubtopics] = useState<string[]>([])
@@ -146,51 +146,81 @@ const Questions: React.FC = () => {
   }
 
   const handleSelectSpecialty = (item: string) => {
-    setSelectedSpecialties((prev) =>
-      prev.includes(item)
+    setSelectedSpecialties((prev) => {
+      const newSpecialties = prev.includes(item)
         ? prev.filter((s) => s !== item)
         : [...prev, item]
-    )
+      setFilters({
+        ...filters,
+        specialties: newSpecialties.length > 0 ? newSpecialties : undefined,
+      })
+      return newSpecialties
+    })
   }
 
   const handleSelectSubtopic = (item: string) => {
-    setSelectedSubtopics((prev) =>
-      prev.includes(item)
+    setSelectedSubtopics((prev) => {
+      const newSubtopics = prev.includes(item)
         ? prev.filter((s) => s !== item)
         : [...prev, item]
-    )
+      setFilters({
+        ...filters,
+        subtopics: newSubtopics.length > 0 ? newSubtopics : undefined,
+      })
+      return newSubtopics
+    })
   }
 
   const handleSelectInstitution = (item: string) => {
-    setSelectedInstitutions((prev) =>
-      prev.includes(item)
+    setSelectedInstitutions((prev) => {
+      const newInstitutions = prev.includes(item)
         ? prev.filter((s) => s !== item)
         : [...prev, item]
-    )
+      setFilters({
+        ...filters,
+        institutions: newInstitutions.length > 0 ? newInstitutions : undefined,
+      })
+      return newInstitutions
+    })
   }
 
   const handleSelectYear = (year: number) => {
-    setSelectedYears((prev) =>
-      prev.includes(year)
+    setSelectedYears((prev) => {
+      const newYears = prev.includes(year)
         ? prev.filter((y) => y !== year)
         : [...prev, year]
-    )
+      setFilters({
+        ...filters,
+        years: newYears.length > 0 ? newYears : undefined,
+      })
+      return newYears
+    })
   }
 
   const handleSelectRegion = (region: string) => {
-    setSelectedRegions((prev) =>
-      prev.includes(region)
+    setSelectedRegions((prev) => {
+      const newRegions = prev.includes(region)
         ? prev.filter((r) => r !== region)
         : [...prev, region]
-    )
+      setFilters({
+        ...filters,
+        regions: newRegions.length > 0 ? newRegions : undefined,
+      })
+      return newRegions
+    })
   }
 
   const handleSelectPurpose = (purpose: string) => {
-    setSelectedPurposes((prev) =>
-      prev.includes(purpose)
+    setSelectedPurposes((prev) => {
+      const newPurposes = prev.includes(purpose)
         ? prev.filter((p) => p !== purpose)
         : [...prev, purpose]
-    )
+      setFilters({
+        ...filters,
+        purposes: newPurposes.length > 0 ? newPurposes : undefined,
+      })
+      return newPurposes
+    })
   }
 
   const handleClear = () => {
@@ -223,8 +253,7 @@ const Questions: React.FC = () => {
     navigate('/questions/list')
   }
 
-  const filteredQuestions = getFilteredQuestions()
-  const questionsCount = filteredQuestions.length
+  const questionsCount = questions.length
 
   // Aplica filtros em tempo real para contagem dinâmica
   const getCurrentFilteredCount = () => {
@@ -260,7 +289,7 @@ const Questions: React.FC = () => {
       }
       
       if (currentFilters.years && currentFilters.years.length > 0) {
-        if (!currentFilters.years.includes(question.year)) return false
+        if (!currentFilters.years.includes(question.ano)) return false
       }
       
       // Mapeamento de regiões (simplificado para exemplo)
@@ -625,8 +654,8 @@ const Questions: React.FC = () => {
           {showQuestions ? (
             <div className="flex-1 overflow-y-auto px-6 pb-4">
               <div className="space-y-4">
-                {filteredQuestions.length > 0 ? (
-                  filteredQuestions.map((question) => (
+                {questions.length > 0 ? (
+                  questions.map((question) => (
                     <div key={question.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
@@ -634,7 +663,7 @@ const Questions: React.FC = () => {
                             {question.specialty}
                           </span>
                           <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                            {question.board} {question.year}
+                            {question.board} {question.ano}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">

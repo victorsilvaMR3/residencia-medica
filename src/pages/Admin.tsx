@@ -66,26 +66,45 @@ const Admin: React.FC = () => {
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const question = {
       id: Date.now().toString(),
-      ...manualForm,
-      tags: manualForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      tema: manualForm.tema,
+      microtemas: manualForm.microtemas.split(',').map(m => m.trim()).filter(m => m),
+      instituicao: manualForm.instituicao,
+      regiao: manualForm.regiao,
+      finalidade: manualForm.finalidade,
+      specialty: manualForm.specialty,
+      topic: manualForm.topic,
+      subtopic: manualForm.subtopic,
+      board: manualForm.board,
+      ano: manualForm.ano,
+      statement: manualForm.statement,
       alternatives: manualForm.alternatives.filter(alt => alt.text.trim()),
+      correctAnswer: manualForm.correctAnswer,
+      explanation: manualForm.explanation,
+      comment: manualForm.comment,
+      difficulty: manualForm.difficulty,
+      tags: manualForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
       createdAt: new Date(),
       updatedAt: new Date()
     }
 
     addQuestion(question)
     setMessage('✅ Questão adicionada com sucesso!')
-    
+
     // Reset form
     setManualForm({
+      tema: '',
+      microtemas: '',
+      instituicao: '',
+      regiao: '',
+      finalidade: '',
       specialty: '',
       topic: '',
       subtopic: '',
       board: '',
-      year: new Date().getFullYear(),
+      ano: new Date().getFullYear(),
       statement: '',
       alternatives: [
         { id: 'a', text: '', letter: 'A' as const },
@@ -138,11 +157,16 @@ const Admin: React.FC = () => {
 
   // Formulário manual
   const [manualForm, setManualForm] = useState({
+    tema: '',
+    microtemas: '', // campo de texto separado por vírgula
+    instituicao: '',
+    regiao: '',
+    finalidade: '',
     specialty: '',
     topic: '',
     subtopic: '',
     board: '',
-    year: new Date().getFullYear(),
+    ano: new Date().getFullYear(),
     statement: '',
     alternatives: [
       { id: 'a', text: '', letter: 'A' as const },
@@ -357,8 +381,8 @@ const Admin: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      value={manualForm.year}
-                      onChange={(e) => setManualForm({...manualForm, year: parseInt(e.target.value)})}
+                      value={manualForm.ano}
+                      onChange={(e) => setManualForm({...manualForm, ano: parseInt(e.target.value)})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success-500"
                       placeholder="2023"
                     />

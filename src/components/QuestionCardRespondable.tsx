@@ -36,7 +36,7 @@ const QuestionCardRespondable: React.FC<Props> = ({ question, selectedAnswer: ex
             {/* Badges */}
             <div className="flex gap-2">
               <span className="uppercase truncate text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{question.board}</span>
-              <span className="uppercase truncate text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{question.year}</span>
+              <span className="uppercase truncate text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{question.ano}</span>
               <span className="uppercase truncate text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{question.specialty}</span>
             </div>
             {/* Ações */}
