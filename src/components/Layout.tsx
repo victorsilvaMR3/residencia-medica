@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex" style={{ background: '#FAFAFA' }}>
       {user && (
         <div className="fixed inset-y-0 left-0 z-30">
           <Sidebar />

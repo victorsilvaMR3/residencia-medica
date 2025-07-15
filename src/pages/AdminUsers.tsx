@@ -18,6 +18,32 @@ const AdminUsers: React.FC = () => {
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
   const [creating, setCreating] = useState(false);
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newUser)
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erro ao criar usuário');
+      }
+      setNewUser({ name: '', email: '', password: '', role: 'user' });
+      window.location.reload();
+    } catch (err: any) {
+      alert('Erro ao criar usuário: ' + err.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   console.log('Componente AdminUsers está sendo renderizado!');
   console.log('User no AdminUsers:', user);
   console.log('Loading no AdminUsers (useAuth):', loading);
@@ -71,7 +97,53 @@ const AdminUsers: React.FC = () => {
   }
 
   if (!fetching && users.length === 0) {
-    return <div className="p-8 text-center">Nenhum usuário encontrado.</div>;
+    return (
+      <div className="p-8 text-center">
+        <div className="mb-4">Nenhum usuário encontrado.</div>
+        <form onSubmit={handleCreateUser} className="mb-6 flex gap-2 items-end flex-wrap justify-center">
+          <input
+            type="text"
+            placeholder="Nome"
+            value={newUser.name}
+            onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+            required
+            className="border rounded px-2 py-1"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={newUser.email}
+            onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+            required
+            className="border rounded px-2 py-1"
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={newUser.password}
+            onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+            required
+            className="border rounded px-2 py-1"
+          />
+          <select
+            value={newUser.role}
+            onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+            className="border rounded px-2 py-1"
+          >
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+            <option value="moderator">moderator</option>
+          </select>
+          <button
+            type="submit"
+            className="bg-success-600 text-white px-4 py-1 rounded"
+            disabled={creating}
+          >
+            {creating ? 'Criando...' : 'Criar Usuário'}
+          </button>
+        </form>
+      </div>
+    );
   }
 
   const handleChangeRole = async (userId: string, newRole: string) => {
@@ -90,32 +162,6 @@ const AdminUsers: React.FC = () => {
       setUsers(users => users.map(u => u.id === userId ? { ...u, role: newRole } : u));
     } catch (err: any) {
       alert('Erro ao atualizar permissão: ' + err.message);
-    }
-  };
-
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreating(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(newUser)
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Erro ao criar usuário');
-      }
-      setNewUser({ name: '', email: '', password: '', role: 'user' });
-      window.location.reload();
-    } catch (err: any) {
-      alert('Erro ao criar usuário: ' + err.message);
-    } finally {
-      setCreating(false);
     }
   };
 
