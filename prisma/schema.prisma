@@ -22,6 +22,7 @@ model User {
   subscription Subscription @default(free)
   created_at   DateTime @default(now())
   userAnswers  UserAnswer[]
+  questionLists QuestionList[]
 }
 
 enum Role {
@@ -76,4 +77,13 @@ model UserAnswer {
   time_spent      Int?
   answered_at     DateTime @default(now())
   marked_for_review Boolean @default(false)
+}
+
+model QuestionList {
+  id          String   @id @default(uuid())
+  name        String
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  questionIds String[] // IDs das questões salvas na lista
+  created_at  DateTime @default(now())
 }

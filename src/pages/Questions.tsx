@@ -35,15 +35,10 @@ const specialtiesList = [
 ]
 
 const allFilterTags = [
-  'Certo/Errado',
-  'Múltipla escolha',
-  'Discursivas',
-  'Com solução por vídeo',
-  'Com solução em texto',
-  'Sem solução em texto',
-  'Sem solução por vídeo',
   'Questões que você já resolveu',
   'Questões que você não resolveu',
+  'Questões que você errou',
+  'Questões que você acertou',
 ]
 
 const Questions: React.FC = () => {
@@ -732,7 +727,6 @@ const Questions: React.FC = () => {
           {/* Botões de ação fixos */}
           <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex flex-col md:flex-row gap-2 md:gap-4 justify-end">
             <button className="px-6 py-2 rounded-lg border border-gray-200 text-gray-700 font-medium bg-white hover:bg-gray-50 transition-colors">Criar lista</button>
-            <button className="px-6 py-2 rounded-lg border border-gray-200 text-gray-700 font-medium bg-white hover:bg-gray-50 transition-colors">Criar simulado</button>
             <button 
               onClick={handleShowQuestions}
               disabled={selectedSpecialties.length === 0 && selectedSubtopics.length === 0 && selectedInstitutions.length === 0 && selectedYears.length === 0 && selectedRegions.length === 0 && selectedPurposes.length === 0}

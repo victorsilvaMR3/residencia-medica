@@ -17,7 +17,7 @@ interface QuestionContextType {
   addQuestions: (questions: Question[]) => void
 }
 
-const QuestionContext = createContext<QuestionContextType | undefined>(undefined)
+const QuestionContext = createContext<QuestionContextType & { setUserAnswers: (answers: UserAnswer[]) => void } | undefined>(undefined)
 
 export const useQuestions = () => {
   const context = useContext(QuestionContext)
@@ -55,7 +55,14 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) 
   const fetchQuestions = async (filters: QuestionFilters) => {
     try {
       const response = await axios.get('/api/questions', { params: filters })
-      setQuestions(response.data)
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setQuestions(data);
+      } else if (data && Array.isArray(data.questions)) {
+        setQuestions(data.questions);
+      } else {
+        setQuestions([]);
+      }
     } catch (error) {
       setQuestions([])
     }
@@ -269,7 +276,8 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({ children }) 
     getNextQuestion,
     getFilteredQuestions,
     addQuestion,
-    addQuestions
+    addQuestions,
+    setUserAnswers, // <-- adicionar aqui
   }
 
   return (

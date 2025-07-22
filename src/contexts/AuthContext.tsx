@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '../types'
 import { isTokenExpired } from '../utils/jwt'
+import { useQuestions } from './QuestionContext'
 
 // Remover redefinição de interface ImportMeta (já existe globalmente)
 
@@ -38,6 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [registerError, setRegisterError] = useState<string | null>(null)
+  const { setUserAnswers } = useQuestions();
 
   // Carregar usuário do localStorage ao iniciar
   useEffect(() => {
@@ -119,6 +121,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser({ ...data.user, createdAt: new Date(data.user.createdAt) })
       localStorage.setItem(USER_KEY, JSON.stringify({ ...data.user, createdAt: new Date(data.user.createdAt) }))
       localStorage.setItem('token', data.token)
+      // Buscar respostas do usuário após login
+      try {
+        const answersRes = await fetch(`${API_URL}/api/answers`, {
+          headers: { 'Authorization': `Bearer ${data.token}` }
+        })
+        if (answersRes.ok) {
+          const answers = await answersRes.json()
+          setUserAnswers(answers)
+        }
+      } catch (err) {
+        console.error('Erro ao buscar respostas do usuário:', err)
+      }
       console.log('🔍 [AuthContext] Login realizado com sucesso')
       
       return { success: true }

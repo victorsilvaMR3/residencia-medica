@@ -55,6 +55,7 @@ const Sidebar: React.FC = () => {
     { path: '/revisoes', icon: Repeat, label: 'Revisões' },
     { path: '/dashboard', icon: BarChart3, label: 'Dashboard' },
     { path: '/profile', icon: UserIcon, label: 'Perfil' },
+    { path: '/listas', icon: Activity, label: 'Listas' },
   ]
 
   // Adicionar Admin apenas para administradores

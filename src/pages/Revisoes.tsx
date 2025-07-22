@@ -77,18 +77,32 @@ const Revisoes: React.FC = () => {
                 <td className="py-2 px-4 text-center">{r.acertos}</td>
                 <td className="py-2 px-4 text-center">{r.erros}</td>
                 <td className="py-2 px-4 text-center">{Math.round(r.percentual * 100)}%</td>
-                <td className={`py-2 px-4 text-center ${corDesempenho(r.desempenho)}`}>{r.desempenho}</td>
-                <td className={`py-2 px-4 text-center ${r.proxima_revisao === hoje ? 'font-bold text-yellow-700' : ''}`}>{formatarDataBR(r.proxima_revisao)}</td>
                 <td className="py-2 px-4 text-center">
-                  <button className="px-3 py-1 rounded bg-teal-600 text-white font-semibold hover:bg-teal-700 transition text-xs" onClick={() => handleIniciarRevisao(r.tema, r.microtema)}>Iniciar Revisão</button>
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border
+                    ${r.desempenho === 'Ótimo' ? 'bg-green-50 text-green-600 border-green-200' :
+                      r.desempenho === 'Bom' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                      'bg-red-50 text-red-600 border-red-200'
+                    }`}>
+                    {r.desempenho}
+                  </span>
+                </td>
+                <td className="py-2 px-4 text-center">
+                  {r.proxima_revisao === hoje ? (
+                    <span className="text-yellow-600 font-medium">Hoje</span>
+                  ) : (
+                    <span>{dayjs(r.proxima_revisao).format('DD/MM/YYYY')}</span>
+                  )}
+                </td>
+                <td className="py-2 px-4 text-center">
+                  <button
+                    onClick={() => handleIniciarRevisao(r.tema, r.microtema)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
+                  >
+                    Iniciar
+                  </button>
                 </td>
               </tr>
             ))}
-            {revisoesFiltradas.length === 0 && (
-              <tr>
-                <td colSpan={10} className="py-8 text-center text-gray-400">Nenhuma revisão encontrada.</td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
@@ -96,4 +110,4 @@ const Revisoes: React.FC = () => {
   )
 }
 
-export default Revisoes 
+export default Revisoes
